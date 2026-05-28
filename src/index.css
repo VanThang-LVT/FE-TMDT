@@ -290,6 +290,12 @@ input::placeholder {
   border: 1px solid rgba(244, 63, 94, 0.3);
 }
 
+.badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .btn-logout {
   padding: 8px 16px;
   background: transparent;

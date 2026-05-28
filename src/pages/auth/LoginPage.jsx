@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { loginApi } from '../../services/api';
+import { loginApi } from '../../services/auth.service';
 import AuthLayout from '../../layouts/AuthLayout';
 import Alert from '../../components/Alert';
 
