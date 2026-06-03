@@ -35,7 +35,7 @@ function RegisterPage() {
   };
 
   return (
-    <AuthLayout title="Đăng Ký" subtitle="Tạo tài khoản khách hàng mới của bạn">
+    <AuthLayout title="EoViTi" subtitle="Tạo tài khoản mua sắm mới">
       <Alert type="danger" message={error} />
       <Alert type="success" message={success} />
 

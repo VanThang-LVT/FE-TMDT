@@ -5,9 +5,9 @@ function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <DashboardLayout brandName="SÀN TMĐT VIỆT NAM">
+    <DashboardLayout brandName="EoViTi">
       <div className="welcome-card" style={{ textAlign: 'center', padding: '60px 20px', marginTop: '50px' }}>
-        <h1 style={{ marginBottom: '20px', fontSize: '32px' }}>Trang Chủ Sàn Thương Mại Điện Tử</h1>
+        <h1 style={{ marginBottom: '20px', fontSize: '32px' }}>Trang Chủ EoViTi</h1>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '40px', fontSize: '16px' }}>
           Hệ thống hiện tại đang trong giai đoạn phát triển. Tính năng trưng bày sản phẩm sẽ được cập nhật sau.<br/>
           Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục.

@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Khôi phục thông tin từ localStorage khi tải trang
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 

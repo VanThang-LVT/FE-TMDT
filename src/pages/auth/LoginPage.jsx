@@ -46,7 +46,7 @@ function LoginPage() {
   };
 
   return (
-    <AuthLayout title="Sàn TMĐT" subtitle="Đăng nhập tài khoản của bạn">
+    <AuthLayout title="EoViTi" subtitle="Đăng nhập tài khoản của bạn">
       <Alert type="danger" message={error} />
       <Alert type="success" message={success} />
 
