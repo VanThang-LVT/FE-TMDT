@@ -6,9 +6,9 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background-color: #f8fafc; /* Softer, modern background */
-  color: #0f172a;
-  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-text);
 }
 
 .admin-sidebar {
@@ -22,15 +22,51 @@
   flex-shrink: 0;
   box-shadow: 4px 0 24px rgba(0,0,0,0.02);
   z-index: 10;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-layout.collapsed .admin-sidebar {
+  width: 80px;
+  padding: 20px 12px;
 }
 
 .admin-sidebar-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 14px;
-  padding: 8px 8px 24px 8px;
+  padding: 8px 0px 24px 0px;
   border-bottom: 1px dashed #e2e8f0;
   margin-bottom: 16px;
+}
+
+.admin-layout.collapsed .admin-sidebar-header {
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-sidebar-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.admin-sidebar-toggle-btn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
 }
 
 .admin-logo-box {
@@ -49,14 +85,14 @@
   font-size: 20px;
   font-weight: 800;
   margin: 0;
-  color: #0f172a;
+  color: var(--text-primary);
   letter-spacing: -0.5px;
 }
 
 .admin-sidebar-title p {
   font-size: 13px;
   margin: 2px 0 0 0;
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -103,6 +139,19 @@
   width: 4px;
   background-color: #2563eb;
   border-radius: 0 4px 4px 0;
+}
+
+.admin-layout.collapsed .admin-nav-item {
+  justify-content: center;
+  padding: 12px;
+}
+
+.admin-layout.collapsed .admin-nav-item:hover {
+  transform: none;
+}
+
+.admin-layout.collapsed .admin-nav-item.active::before {
+  left: -12px;
 }
 
 .admin-sidebar-footer {
@@ -203,11 +252,17 @@
 
 .admin-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 8px;
-  height: 8px;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
   background-color: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   box-shadow: 0 0 0 2px #ffffff;
 }

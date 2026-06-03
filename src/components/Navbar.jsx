@@ -1,15 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getMyNotificationsApi, getUnreadCountApi, markAsReadApi, markAllAsReadApi } from '../services/notification.service';
+import logoImg from '../assets/logo.png';
 
-function Navbar({ brandName = 'SÀN TMĐT VIỆT NAM' }) {
+function Navbar({ brandName = 'EoViTi' }) {
   const { user, token, logout, isAdmin, isSeller } = useAuth();
   const navigate = useNavigate();
-  
+
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Close dropdowns when clicking outside
+  const notifRef = useRef(null);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (token && user) {
@@ -37,7 +56,7 @@ function Navbar({ brandName = 'SÀN TMĐT VIỆT NAM' }) {
     if (!notif.isRead) {
       try {
         await markAsReadApi(notif.notificationId, token);
-        setNotifications(notifications.map(n => 
+        setNotifications(notifications.map(n =>
           n.notificationId === notif.notificationId ? { ...n, isRead: true } : n
         ));
         setUnreadCount(prev => Math.max(0, prev - 1));
@@ -64,76 +83,196 @@ function Navbar({ brandName = 'SÀN TMĐT VIỆT NAM' }) {
   };
 
   return (
-    <nav className="navbar">
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <div className="brand">{brandName}</div>
-      </Link>
-      <div className="user-nav-info">
-        {user ? (
-          <>
-            <div className="admin-notification" onClick={() => setShowNotifications(!showNotifications)} style={{ marginRight: '10px' }}>
-              <span className="material-symbols-outlined">notifications</span>
-              {unreadCount > 0 && (
-                <span className="admin-badge" style={{ top: '0px', right: '0px', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: 'white' }}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-              
-              {showNotifications && (
-                <div className="notification-dropdown" style={{ top: '45px' }}>
-                  <div className="notification-header">
-                    <h4>Thông báo</h4>
-                    {unreadCount > 0 && (
-                      <button onClick={handleMarkAllAsRead} className="mark-all-read">Đánh dấu đã đọc</button>
-                    )}
-                  </div>
-                  <div className="notification-list">
-                    {notifications.length === 0 ? (
-                      <p className="no-notifications">Không có thông báo nào</p>
-                    ) : (
-                      notifications.map(notif => (
-                        <div 
-                          key={notif.notificationId} 
-                          className={`notification-item ${!notif.isRead ? 'unread' : ''}`}
-                          onClick={(e) => handleNotificationClick(notif, e)}
-                        >
-                          <div className="notification-icon">
-                            <span className="material-symbols-outlined">info</span>
-                          </div>
-                          <div className="notification-content" style={{ textAlign: 'left' }}>
-                            <h5>{notif.title}</h5>
-                            <p>{notif.content}</p>
-                            <span className="notification-time">
-                              {new Date(notif.createdAt).toLocaleString('vi-VN')}
-                            </span>
-                          </div>
-                          {!notif.isRead && <div className="unread-dot"></div>}
+    <header className="navbar-container">
+      <div className="navbar-content">
+
+        {/* Brand Logo */}
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img
+            src={logoImg}
+            alt="EoViTi Logo"
+            style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)' }}
+          />
+          <span className="brand" style={{ margin: 0 }}>
+            {brandName}
+          </span>
+        </Link>
+
+        {/* Search Bar (Desktop) */}
+        <div className="navbar-search">
+          <input
+            placeholder="Tìm kiếm sản phẩm, thương hiệu..."
+            type="text"
+          />
+          <span className="material-symbols-outlined search-icon">search</span>
+        </div>
+
+        {/* Navigation Links & Actions */}
+        <nav className="nav-actions">
+          {user ? (
+            <>
+              {/* Notification Bell */}
+              <div className="relative" ref={notifRef} style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="icon-btn"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="badge-count">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notification Dropdown */}
+                {showNotifications && (
+                  <div className="user-dropdown-menu" style={{ width: '320px' }}>
+                    <div className="user-dropdown-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <p className="user-name">Thông báo</p>
+                      {unreadCount > 0 && (
+                        <button onClick={handleMarkAllAsRead} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '12px', cursor: 'pointer' }}>
+                          Đánh dấu đã đọc
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+                      {notifications.length === 0 ? (
+                        <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                          <p>Không có thông báo nào</p>
                         </div>
-                      ))
-                    )}
+                      ) : (
+                        notifications.map(notif => (
+                          <div
+                            key={notif.notificationId}
+                            style={{
+                              padding: '12px 16px',
+                              borderBottom: '1px solid var(--border-color)',
+                              display: 'flex',
+                              gap: '12px',
+                              cursor: 'pointer',
+                              background: notif.isRead ? 'transparent' : '#f8fafc',
+                              opacity: notif.isRead ? 0.7 : 1
+                            }}
+                            onClick={(e) => handleNotificationClick(notif, e)}
+                          >
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-glow)', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <span className="material-symbols-outlined">info</span>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <h5 style={{ margin: 0, fontSize: '14px', color: notif.isRead ? 'var(--text-secondary)' : 'var(--text-primary)' }}>{notif.title}</h5>
+                              <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>{notif.content}</p>
+                              <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginTop: '6px' }}>
+                                {new Date(notif.createdAt).toLocaleString('vi-VN')}
+                              </span>
+                            </div>
+                            {!notif.isRead && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary-color)', marginTop: '6px', flexShrink: 0 }}></div>}
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+
+              {/* Shopping Cart */}
+              <button
+                onClick={() => navigate('/cart')}
+                className="icon-btn"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>shopping_cart</span>
+                <span className="badge-count">3</span>
+              </button>
+
+              {/* User Profile */}
+              <div className="relative" ref={userMenuRef} style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="icon-btn"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>account_circle</span>
+                </button>
+
+                {/* User Dropdown */}
+                {showUserMenu && (
+                  <div className="user-dropdown-menu">
+                    <div className="user-dropdown-header">
+                      <p className="user-name">{user.fullName}</p>
+                      <p className="user-email">{user.email}</p>
+
+                      <div style={{ marginTop: '8px' }}>
+                        {isAdmin() ? (
+                          <span className="badge badge-admin">Quản trị viên</span>
+                        ) : isSeller() ? (
+                          <span className="badge" style={{ background: 'var(--success-glow)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>Người bán</span>
+                        ) : (
+                          <span className="badge">Khách hàng</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '8px 0' }}>
+                      <Link to="/profile" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                        <span className="material-symbols-outlined">person</span>
+                        Thông tin cá nhân
+                      </Link>
+                      <Link to="/cart" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                        <span className="material-symbols-outlined">shopping_cart</span>
+                        Giỏ hàng
+                      </Link>
+                      <Link to="/orders/history" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                        <span className="material-symbols-outlined">history</span>
+                        Lịch sử đơn hàng
+                      </Link>
+                      <Link to="/orders" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                        <span className="material-symbols-outlined">receipt_long</span>
+                        Đơn hàng
+                      </Link>
+
+                      {(!isSeller() && !isAdmin()) && (
+                        <Link to="/register-shop" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                          <span className="material-symbols-outlined">storefront</span>
+                          Đăng ký gian hàng
+                        </Link>
+                      )}
+
+                      {isAdmin() && (
+                        <Link to="/admin" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                          <span className="material-symbols-outlined">admin_panel_settings</span>
+                          Trang Quản Trị
+                        </Link>
+                      )}
+
+                      <div style={{ borderTop: '1px solid var(--border-color)', margin: '4px 0' }}></div>
+
+                      <button onClick={handleLogoutClick} className="dropdown-item danger">
+                        <span className="material-symbols-outlined">logout</span>
+                        Đăng xuất
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => navigate('/login')}
+                className="btn-outline"
+              >
+                Đăng nhập
+              </button>
+              <button
+                onClick={() => navigate('/register')}
+                className="btn-primary"
+              >
+                Đăng ký
+              </button>
             </div>
-            
-            <span>Xin chào, <strong>{user.fullName}</strong></span>
-            {isAdmin() ? (
-              <span className="badge badge-admin">Quản trị viên</span>
-            ) : isSeller() ? (
-              <span className="badge" style={{ background: 'var(--success-glow)', color: '#6ee7b7', borderColor: 'rgba(16, 185, 129, 0.3)' }}>Người bán</span>
-            ) : (
-              <span className="badge">Khách hàng</span>
-            )}
-            <button className="btn-logout" onClick={handleLogoutClick}>ĐĂNG XUẤT</button>
-          </>
-        ) : (
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button className="btn-logout" onClick={() => navigate('/login')}>ĐĂNG NHẬP</button>
-            <button className="btn" style={{ padding: '8px 16px', margin: 0, width: 'auto', fontSize: '13px' }} onClick={() => navigate('/register')}>ĐĂNG KÝ</button>
-          </div>
-        )}
+          )}
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }
 

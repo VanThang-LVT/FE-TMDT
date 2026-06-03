@@ -1,16 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { getMyNotificationsApi, getUnreadCountApi, markAsReadApi, markAllAsReadApi } from '../../services/notification.service';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getMyNotificationsApi, getUnreadCountApi, markAsReadApi, markAllAsReadApi } from '../services/notification.service';
 import './AdminLayout.css';
 
 const AdminLayout = ({ children }) => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('sidebarCollapsed') === 'true';
+  });
+
+  const notificationRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => {
+      const newState = !prev;
+      localStorage.setItem('sidebarCollapsed', newState);
+      return newState;
+    });
+  };
 
   useEffect(() => {
     if (token) {
@@ -66,30 +90,51 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="admin-layout">
+    <div className={`admin-layout ${isSidebarCollapsed ? 'collapsed' : ''}`}>
       {/* SIDEBAR */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-          <div className="admin-logo-box">
-            <span className="material-symbols-outlined">admin_panel_settings</span>
+          <div className="admin-sidebar-brand">
+            <div className="admin-logo-box">
+              <span className="material-symbols-outlined">admin_panel_settings</span>
+            </div>
+            {!isSidebarCollapsed && (
+              <div className="admin-sidebar-title">
+                <h1>Admin Portal</h1>
+                <p>Quản trị hệ thống</p>
+              </div>
+            )}
           </div>
-          <div className="admin-sidebar-title">
-            <h1>Admin Portal</h1>
-            <p>Quản trị hệ thống</p>
-          </div>
+          <button 
+            className="admin-sidebar-toggle-btn"
+            onClick={toggleSidebar}
+            title={isSidebarCollapsed ? "Phóng to" : "Thu nhỏ"}
+          >
+            <span className="material-symbols-outlined">
+              {isSidebarCollapsed ? "chevron_right" : "chevron_left"}
+            </span>
+          </button>
         </div>
 
         <nav className="admin-nav">
-          <a className="admin-nav-item active" onClick={() => navigate('/admin')}>
+          <NavLink to="/admin" end className={({isActive}) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Duyệt cửa hàng">
             <span className="material-symbols-outlined">storefront</span>
-            Duyệt cửa hàng
-          </a>
+            {!isSidebarCollapsed && <span>Duyệt cửa hàng</span>}
+          </NavLink>
+          <NavLink to="/admin/categories" className={({isActive}) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Quản lý danh mục">
+            <span className="material-symbols-outlined">category</span>
+            {!isSidebarCollapsed && <span>Quản lý danh mục</span>}
+          </NavLink>
+          <NavLink to="/admin/products" className={({isActive}) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Duyệt Sản phẩm">
+            <span className="material-symbols-outlined">inventory_2</span>
+            {!isSidebarCollapsed && <span>Duyệt Sản phẩm</span>}
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">
-          <a className="admin-nav-item text-error" onClick={handleLogoutClick}>
+          <a className="admin-nav-item text-error" onClick={handleLogoutClick} title="Đăng xuất">
             <span className="material-symbols-outlined">logout</span>
-            Đăng xuất
+            {!isSidebarCollapsed && <span>Đăng xuất</span>}
           </a>
         </div>
       </aside>
@@ -98,13 +143,10 @@ const AdminLayout = ({ children }) => {
       <main className="admin-main">
         {/* TOPBAR */}
         <header className="admin-topbar">
-          <div className="admin-search">
-            <span className="material-symbols-outlined" style={{color: '#94a3b8'}}>search</span>
-            <input type="text" placeholder="Tìm kiếm gian hàng..." />
-          </div>
+          <div className="admin-search-placeholder"></div>
           
           <div className="admin-topbar-right">
-            <div className="admin-notification" onClick={() => setShowNotifications(!showNotifications)}>
+            <div className="admin-notification" ref={notificationRef} onClick={() => setShowNotifications(!showNotifications)}>
               <span className="material-symbols-outlined">notifications</span>
               {unreadCount > 0 && (
                 <span className="admin-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
