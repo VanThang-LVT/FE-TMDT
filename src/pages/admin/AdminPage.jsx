@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAllShopsApi, approveOrRejectShopApi } from '../../services/shop.service';
-import AdminLayout from '../../components/layout/AdminLayout';
+import AdminLayout from '../../layouts/AdminLayout';
 import ConfirmModal from '../../components/modals/ConfirmModal';
 import PromptModal from '../../components/modals/PromptModal';
 import './AdminPage.css';
@@ -20,6 +20,18 @@ function AdminPage() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, shopId: null });
   const [promptModal, setPromptModal] = useState({ isOpen: false, shopId: null });
 
+  const fetchPendingShops = useCallback(async () => {
+    setLoadingShops(true);
+    try {
+      const res = await getAllShopsApi('PENDING', token);
+      setPendingShops(res.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoadingShops(false);
+    }
+  }, [token]);
+
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
@@ -30,19 +42,9 @@ function AdminPage() {
         fetchPendingShops();
       }
     }
-  }, [user, authLoading, isAdmin, navigate, token]);
+  }, [user, authLoading, isAdmin, navigate, token, fetchPendingShops]);
 
-  const fetchPendingShops = async () => {
-    setLoadingShops(true);
-    try {
-      const res = await getAllShopsApi('PENDING', token);
-      setPendingShops(res.data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoadingShops(false);
-    }
-  };
+
 
   const executeAction = async (id, status, reason = null) => {
     setError('');
@@ -124,7 +126,7 @@ function AdminPage() {
                 <th>Chủ sở hữu</th>
                 <th>Mô tả</th>
                 <th>Trạng thái</th>
-                <th style={{textAlign: 'right'}}>Thao tác</th>
+                <th style={{textAlign: 'center'}}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
