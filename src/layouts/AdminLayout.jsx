@@ -129,6 +129,10 @@ const AdminLayout = ({ children }) => {
             <span className="material-symbols-outlined">inventory_2</span>
             {!isSidebarCollapsed && <span>Duyệt Sản phẩm</span>}
           </NavLink>
+          <NavLink to="/admin/banners" className={({isActive}) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Quản lý Banner">
+            <span className="material-symbols-outlined">view_carousel</span>
+            {!isSidebarCollapsed && <span>Quản lý Banner</span>}
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">

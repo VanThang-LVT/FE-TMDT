@@ -101,3 +101,28 @@ export const deleteProductApi = async (productId, token) => {
   }
   return data;
 };
+
+export const getPublicProductsApi = async (keyword = '', categoryId = '') => {
+  let url = `${API_BASE_URL}/products`;
+  const params = new URLSearchParams();
+  if (keyword) params.append('keyword', keyword);
+  if (categoryId) params.append('categoryId', categoryId);
+  
+  if (params.toString()) {
+    url += `?${params.toString()}`;
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Không thể tải danh sách sản phẩm');
+  }
+  return response.json();
+};
+
+export const getPublicProductDetailApi = async (productId) => {
+  const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+  if (!response.ok) {
+    throw new Error('Không thể tải thông tin sản phẩm');
+  }
+  return response.json();
+};

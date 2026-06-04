@@ -1,26 +1,138 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
+import { getPublicProductsApi } from '../../services/product.service';
+import { getPublicBannersApi } from '../../services/banner.service';
+import { API_BASE_URL } from '../../utils/constants';
+import './HomePage.css';
 
 function HomePage() {
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = () => {
+    if (banners.length > 0) setCurrentSlide((prev) => (prev + 1) % banners.length);
+  };
+
+  const prevSlide = () => {
+    if (banners.length > 0) setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
+  };
+
+  useEffect(() => {
+    if (banners.length === 0) return;
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsData, bannersData] = await Promise.all([
+          getPublicProductsApi(),
+          getPublicBannersApi()
+        ]);
+        setProducts(productsData);
+        setBanners(bannersData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <DashboardLayout brandName="EoViTi">
-      <div className="welcome-card" style={{ textAlign: 'center', padding: '60px 20px', marginTop: '50px' }}>
-        <h1 style={{ marginBottom: '20px', fontSize: '32px' }}>Trang Chủ EoViTi</h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '40px', fontSize: '16px' }}>
-          Hệ thống hiện tại đang trong giai đoạn phát triển. Tính năng trưng bày sản phẩm sẽ được cập nhật sau.<br/>
-          Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục.
-        </p>
-        
-        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', maxWidth: '400px', margin: '0 auto' }}>
-          <button className="btn btn-secondary" onClick={() => navigate('/login')}>
-            ĐĂNG NHẬP
-          </button>
-          <button className="btn" onClick={() => navigate('/register')}>
-            ĐĂNG KÝ
-          </button>
-        </div>
+      <div className="home-container">
+        {banners.length > 0 && (
+          <div className="home-banner-wrapper">
+            <div 
+              className="home-banner-track"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {banners.map((banner, index) => (
+                <div 
+                  key={banner.bannerId} 
+                  className="home-banner"
+                  onClick={() => {
+                    if (banner.buttonLink) navigate(banner.buttonLink);
+                    else window.scrollTo({ top: 500, behavior: 'smooth' });
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="home-banner-image">
+                    <img src={`${API_BASE_URL}/banners/images/${banner.bannerId}`} alt={banner.title} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="banner-dots">
+              {banners.map((_, index) => (
+                <span 
+                  key={index} 
+                  className={`dot ${index === currentSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
+            </div>
+
+            {banners.length > 1 && (
+              <>
+                <button className="banner-nav-btn prev" onClick={prevSlide}>
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button className="banner-nav-btn next" onClick={nextSlide}>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="home-loading">Đang tải sản phẩm...</div>
+        ) : error ? (
+          <div className="home-error">{error}</div>
+        ) : (
+          <div className="product-grid">
+            {products.length === 0 ? (
+              <div className="home-empty">Chưa có sản phẩm nào được đăng bán.</div>
+            ) : (
+              products.map(product => (
+                <div key={product.productId} className="product-card" onClick={() => navigate(`/product/${product.productId}`)}>
+                  <div className="product-image-container">
+                    {product.mainImageId ? (
+                      <img src={`${API_BASE_URL}/public/images/${product.mainImageId}`} alt={product.productName} className="product-image" />
+                    ) : (
+                      <div className="product-no-image">
+                        <span className="material-symbols-outlined">image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="product-info">
+                    <h3 className="product-title">{product.productName}</h3>
+                    <div className="product-price font-number">{product.price.toLocaleString('vi-VN')} đ</div>
+                    <div className="product-footer">
+                      <span className="product-shop">
+                        <span className="material-symbols-outlined icon-small">storefront</span>
+                        {product.shopName || `Shop #${product.shopId}`}
+                      </span>
+                      <span className="product-sales font-number">Đã bán 0</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
