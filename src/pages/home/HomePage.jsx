@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { getPublicProductsApi } from '../../services/product.service';
 import { getPublicBannersApi } from '../../services/banner.service';
+import { getAllCategoriesApi } from '../../services/category.service';
 import { API_BASE_URL } from '../../utils/constants';
 import './HomePage.css';
 
@@ -10,6 +11,7 @@ function HomePage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -33,12 +35,14 @@ function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsData, bannersData] = await Promise.all([
+        const [productsData, bannersData, categoriesData] = await Promise.all([
           getPublicProductsApi(),
-          getPublicBannersApi()
+          getPublicBannersApi(),
+          getAllCategoriesApi()
         ]);
         setProducts(productsData);
         setBanners(bannersData);
+        setCategories(categoriesData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -53,13 +57,13 @@ function HomePage() {
       <div className="home-container">
         {banners.length > 0 && (
           <div className="home-banner-wrapper">
-            <div 
+            <div
               className="home-banner-track"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
               {banners.map((banner, index) => (
-                <div 
-                  key={banner.bannerId} 
+                <div
+                  key={banner.bannerId}
                   className="home-banner"
                   onClick={() => {
                     if (banner.buttonLink) navigate(banner.buttonLink);
@@ -73,11 +77,11 @@ function HomePage() {
                 </div>
               ))}
             </div>
-            
+
             <div className="banner-dots">
               {banners.map((_, index) => (
-                <span 
-                  key={index} 
+                <span
+                  key={index}
                   className={`dot ${index === currentSlide ? 'active' : ''}`}
                   onClick={() => setCurrentSlide(index)}
                 />
@@ -96,6 +100,46 @@ function HomePage() {
             )}
           </div>
         )}
+
+        {/* Categories Section */}
+        {!loading && categories.length > 0 && (
+          <div className="home-categories-section">
+            <h2 className="section-title" style={{textAlign: 'center'}}>Danh Mục Thể Loại</h2>
+            
+            <div className="categories-hierarchy">
+              <div className="home-categories-list" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
+                {categories.filter(c => !c.parentId).map(parent => (
+                  <div 
+                    key={parent.categoryId}
+                    className="home-category-item"
+                    onClick={() => {
+                      window.scrollTo({ top: 800, behavior: 'smooth' });
+                    }}
+                  >
+                    <div className="category-icon" style={{ padding: parent.hasImage ? '0' : undefined, overflow: 'hidden' }}>
+                      {parent.hasImage ? (
+                        <img 
+                          src={`http://localhost:8080/api/categories/public/${parent.categoryId}/image`} 
+                          alt={parent.categoryName} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <span className="material-symbols-outlined">
+                          {parent.categoryName.toLowerCase().includes('áo') || parent.categoryName.toLowerCase().includes('quần') || parent.categoryName.toLowerCase().includes('thời trang') ? 'checkroom' :
+                            parent.categoryName.toLowerCase().includes('điện') || parent.categoryName.toLowerCase().includes('máy') || parent.categoryName.toLowerCase().includes('laptop') ? 'devices' :
+                              parent.categoryName.toLowerCase().includes('giày') ? 'snowshoeing' : 'category'}
+                        </span>
+                      )}
+                    </div>
+                    <span className="category-name">{parent.categoryName}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <h2 className="section-title" style={{ marginTop: '40px' }}>Gợi Ý Cho Bạn</h2>
 
         {loading ? (
           <div className="home-loading">Đang tải sản phẩm...</div>

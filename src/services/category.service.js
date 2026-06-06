@@ -22,22 +22,34 @@ export const getAllCategoriesForAdminApi = async (token) => {
   return data;
 };
 
-export const createCategoryApi = async (categoryData, token) => {
+export const createCategoryApi = async (categoryData, imageFile, token) => {
+  const formData = new FormData();
+  formData.append('category', JSON.stringify(categoryData));
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+
   const response = await fetch(`${API_BASE_URL}/categories/admin`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify(categoryData)
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || 'Lỗi thêm danh mục!');
   return data;
 };
 
-export const updateCategoryApi = async (id, categoryData, token) => {
+export const updateCategoryApi = async (id, categoryData, imageFile, token) => {
+  const formData = new FormData();
+  formData.append('category', JSON.stringify(categoryData));
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+
   const response = await fetch(`${API_BASE_URL}/categories/admin/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify(categoryData)
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || 'Lỗi cập nhật danh mục!');

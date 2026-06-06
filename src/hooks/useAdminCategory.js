@@ -36,6 +36,9 @@ export const useAdminCategory = (token) => {
     status: 'ACTIVE'
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const toggleExpand = useCallback((categoryId) => {
     setExpandedCats(prev => ({
       ...prev,
@@ -61,6 +64,16 @@ export const useAdminCategory = (token) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   }, []);
 
+  const handleImageChange = useCallback((e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
@@ -74,11 +87,11 @@ export const useAdminCategory = (token) => {
       };
       
       if (editMode) {
-        await updateCategoryApi(editId, payload, token);
+        await updateCategoryApi(editId, payload, imageFile, token);
         await fetchCategories();
         setSuccess('Cập nhật danh mục thành công!');
       } else {
-        const newCategory = await createCategoryApi(payload, token);
+        const newCategory = await createCategoryApi(payload, imageFile, token);
         setCategories(prev => [...prev, newCategory]);
         setSuccess('Thêm danh mục thành công!');
       }
@@ -87,13 +100,15 @@ export const useAdminCategory = (token) => {
       setEditMode(false);
       setEditId(null);
       setFormData({ parentId: '', categoryName: '', description: '', status: 'ACTIVE' });
+      setImageFile(null);
+      setImagePreview(null);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
-  }, [editMode, editId, formData, fetchCategories, token]);
+  }, [editMode, editId, formData, imageFile, fetchCategories, token]);
 
   const handleEditClick = useCallback((cat) => {
     setEditMode(true);
@@ -104,6 +119,8 @@ export const useAdminCategory = (token) => {
       description: cat.description || '',
       status: cat.status || 'ACTIVE'
     });
+    setImageFile(null);
+    setImagePreview(cat.hasImage ? `http://localhost:8080/api/categories/public/${cat.categoryId}/image` : null);
     setShowAddForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -131,6 +148,8 @@ export const useAdminCategory = (token) => {
     setEditMode(false);
     setEditId(null);
     setFormData({ parentId: '', categoryName: '', description: '', status: 'ACTIVE' });
+    setImageFile(null);
+    setImagePreview(null);
   }, []);
 
   const fetchAttributes = useCallback(async (categoryId) => {
@@ -208,7 +227,7 @@ export const useAdminCategory = (token) => {
     categories, loading, error, success,
     showAddForm, setShowAddForm,
     isSubmitting, editMode, editId, expandedCats,
-    formData, handleInputChange, handleSubmit,
+    formData, handleInputChange, handleImageChange, imagePreview, handleSubmit,
     handleEditClick, handleToggleStatus, handleCancelForm, toggleExpand,
     attrModalOpen, setAttrModalOpen, selectedCategory, attributes,
     newAttr, setNewAttr, attrLoading, openAttrModal, handleAddAttr, handleDeleteAttr,
