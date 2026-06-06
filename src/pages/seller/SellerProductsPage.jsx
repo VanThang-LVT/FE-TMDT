@@ -16,8 +16,9 @@ function SellerProductsPage() {
     products, categories, loading, error, success,
     showAddForm, setShowAddForm, isSubmitting, editingProductId,
     formData, images, mainImageIndex, setMainImageIndex,
-    categoryAttributes, attributeValues,
-    fetchData, handleInputChange, handleAttributeChange,
+    categoryAttributes, attributeValues, variants, setVariants,
+    variantAttributeIds, setVariantAttributeIds,
+    fetchData, handleInputChange, handleAttributeChange, handleVariantImageChange,
     handleImageChange, handleRemoveImage, handleSubmit,
     handleDeleteProduct, handleEditClick, handleCancelForm, buildCategoryOptions
   } = useSellerProducts(token);
@@ -52,6 +53,9 @@ function SellerProductsPage() {
     p.productName.toLowerCase().includes(searchTerm.toLowerCase()) || 
     (p.brand && p.brand.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const generalAttributes = categoryAttributes;
+  const variantAttributes = categoryAttributes.filter(attr => variantAttributeIds.includes(attr.attrId));
 
   if (authLoading || loading) {
     return <div style={{ padding: '50px', textAlign: 'center', color: 'var(--text-primary)' }}>Đang tải dữ liệu...</div>;
@@ -105,12 +109,32 @@ function SellerProductsPage() {
             
             <div className="form-group seller-products-form-group">
               <label>Giá bán (VNĐ) (*)</label>
-              <input type="number" name="price" value={formData.price} onChange={handleInputChange} required min="0" />
+              <input 
+                type="number" 
+                name="price" 
+                value={variants.length > 0 ? Math.min(...variants.map(v => Number(v.price) || 0)) : formData.price} 
+                onChange={handleInputChange} 
+                required 
+                min="0" 
+                readOnly={variants.length > 0} 
+                style={{ backgroundColor: variants.length > 0 ? '#f1f5f9' : 'white', cursor: variants.length > 0 ? 'not-allowed' : 'text' }}
+                title={variants.length > 0 ? "Giá được tự động lấy từ phân loại thấp nhất" : ""}
+              />
             </div>
             
             <div className="form-group seller-products-form-group">
               <label>Số lượng kho (*)</label>
-              <input type="number" name="stockQuantity" value={formData.stockQuantity} onChange={handleInputChange} required min="1" />
+              <input 
+                type="number" 
+                name="stockQuantity" 
+                value={variants.length > 0 ? variants.reduce((sum, v) => sum + (Number(v.stockQuantity) || 0), 0) : formData.stockQuantity} 
+                onChange={handleInputChange} 
+                required 
+                min="1" 
+                readOnly={variants.length > 0} 
+                style={{ backgroundColor: variants.length > 0 ? '#f1f5f9' : 'white', cursor: variants.length > 0 ? 'not-allowed' : 'text' }}
+                title={variants.length > 0 ? "Số lượng kho được tính tổng tự động từ các phân loại" : ""}
+              />
             </div>
 
             <div className="form-group seller-products-form-group">
@@ -128,25 +152,147 @@ function SellerProductsPage() {
               <textarea name="description" value={formData.description} onChange={handleInputChange} className="seller-products-textarea"></textarea>
             </div>
 
-            {categoryAttributes.length > 0 && (
+            {generalAttributes.length > 0 && (
               <div className="seller-products-eav-container">
                 <h4 className="seller-products-eav-title">
                   Thông số kỹ thuật (Tự động tải theo danh mục)
                 </h4>
-                {categoryAttributes.map(attr => (
+                {generalAttributes.map(attr => (
                   <div key={attr.attrId} className="form-group seller-products-form-group">
-                    <label>{attr.attrName} {attr.isRequired ? '(*)' : ''}</label>
+                    <label>{attr.attrName} (Chung) {attr.isRequired ? '(*)' : ''}</label>
                     <input 
                       type="text" 
                       value={attributeValues[attr.attrId] || ''} 
                       onChange={(e) => handleAttributeChange(attr.attrId, e.target.value)} 
-                      required={attr.isRequired} 
+                      required={attr.isRequired && (!variants || variants.length === 0)} 
                       placeholder={`Nhập ${attr.attrName.toLowerCase()}...`}
                     />
                   </div>
                 ))}
               </div>
             )}
+
+            <div className="seller-products-variants-layout" style={{ marginTop: '20px', width: '100%', gridColumn: '1 / -1', background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', gap: '24px', alignItems: 'center' }}>
+              
+              <div style={{ flex: '0 0 250px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <h4 style={{ margin: 0, fontWeight: '700', color: '#1e293b', fontSize: '15px', lineHeight: '1.5' }}>
+                  Phân loại hàng (Ví dụ: Size, Màu sắc...)
+                </h4>
+                
+                {categoryAttributes.length > 0 && (
+                  <div style={{ padding: '4px 0' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Thuộc tính phân loại:
+                    </label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {categoryAttributes.map(attr => {
+                        const isSelected = variantAttributeIds.includes(attr.attrId);
+                        return (
+                          <div 
+                            key={attr.attrId}
+                            onClick={() => {
+                              if (isSelected) setVariantAttributeIds(variantAttributeIds.filter(id => id !== attr.attrId));
+                              else setVariantAttributeIds([...variantAttributeIds, attr.attrId]);
+                            }}
+                            style={{
+                              padding: '8px 14px',
+                              borderRadius: '8px',
+                              fontSize: '13px',
+                              fontWeight: isSelected ? '600' : '500',
+                              cursor: 'pointer',
+                              border: isSelected ? '1px solid #4f46e5' : '1px solid #e2e8f0',
+                              background: isSelected ? '#e0e7ff' : '#f1f5f9',
+                              color: isSelected ? '#4f46e5' : '#64748b',
+                              transition: 'all 0.2s',
+                              userSelect: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px', display: isSelected ? 'block' : 'none' }}>check</span>
+                            {attr.attrName}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <button type="button" className="btn" style={{ padding: '12px', fontSize: '14px', background: '#e0e7ff', color: '#4f46e5', width: '100%', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setVariants([...variants, { id: Math.random().toString(), sku: '', price: '', stockQuantity: '', attributes: {} }])}>
+                  + Thêm phân loại
+                </button>
+              </div>
+              <div style={{ flex: '1', overflowX: 'auto', background: 'white', borderRadius: '10px', border: '1px solid #e2e8f0', padding: '20px', minHeight: '120px' }}>
+                {variants && variants.length > 0 ? (
+                  <>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ padding: '10px', borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>SKU (MÃ PL)</th>
+                          {variantAttributes.map(attr => (
+                            <th key={attr.attrId} style={{ padding: '10px', borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{attr.attrName}</th>
+                          ))}
+                          <th style={{ padding: '10px', borderBottom: '2px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>HÌNH ẢNH</th>
+                          <th style={{ padding: '10px', borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>GIÁ RIÊNG (VNĐ) *</th>
+                          <th style={{ padding: '10px', borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>KHO RIÊNG *</th>
+                          <th style={{ padding: '10px', borderBottom: '2px solid #e2e8f0', width: '40px' }}></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {variants.map((variant, index) => (
+                          <tr key={variant.id || index}>
+                            <td style={{ padding: '12px 10px', borderBottom: '1px solid #f1f5f9' }}>
+                              <input type="text" value={variant.sku} onChange={(e) => { const newV = [...variants]; newV[index].sku = e.target.value; setVariants(newV); }} style={{ width: '100%', minWidth: '90px', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px' }} placeholder="Vd: S-RE" />
+                            </td>
+                            {variantAttributes.map(attr => (
+                              <td key={attr.attrId} style={{ padding: '12px 10px', borderBottom: '1px solid #f1f5f9' }}>
+                                <input type="text" value={variant.attributes[attr.attrId] || ''} onChange={(e) => { const newV = [...variants]; newV[index].attributes = {...newV[index].attributes, [attr.attrId]: e.target.value}; setVariants(newV); }} style={{ width: '100%', minWidth: '90px', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px' }} placeholder={attr.attrName} />
+                              </td>
+                            ))}
+                            <td style={{ padding: '12px 10px', borderBottom: '1px solid #f1f5f9', minWidth: '140px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                {variant.imageUrl && variant.imageUrl.startsWith('data:image') ? (
+                                  <img src={variant.imageUrl} alt="preview" style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
+                                ) : variant.imageUrl ? (
+                                  <img src={variant.imageUrl.startsWith('http') ? variant.imageUrl : `${API_BASE_URL}${variant.imageUrl.replace('/api', '')}`} alt="preview" style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
+                                ) : (
+                                  <div style={{ width: '42px', height: '42px', background: '#f8fafc', borderRadius: '6px', border: '1px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#94a3b8' }}>image</span>
+                                  </div>
+                                )}
+                                <label style={{ cursor: 'pointer', color: '#3b82f6', fontSize: '12px', fontWeight: '600', background: '#eff6ff', padding: '6px 12px', borderRadius: '6px', border: '1px solid #bfdbfe', whiteSpace: 'nowrap', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background='#dbeafe'} onMouseOut={(e) => e.currentTarget.style.background='#eff6ff'}>
+                                  TẢI ẢNH
+                                  <input type="file" accept="image/*" style={{ display: 'none' }} onClick={(e) => e.target.value = null} onChange={(e) => handleVariantImageChange(index, e.target.files[0])} />
+                                </label>
+                              </div>
+                            </td>
+                            <td style={{ padding: '12px 10px', borderBottom: '1px solid #f1f5f9' }}>
+                              <input type="number" value={variant.price} onChange={(e) => { const newV = [...variants]; newV[index].price = e.target.value; setVariants(newV); }} style={{ width: '100%', minWidth: '100px', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px' }} placeholder="Giá" min="0" required />
+                            </td>
+                            <td style={{ padding: '12px 10px', borderBottom: '1px solid #f1f5f9' }}>
+                              <input type="number" value={variant.stockQuantity} onChange={(e) => { const newV = [...variants]; newV[index].stockQuantity = e.target.value; setVariants(newV); }} style={{ width: '100%', minWidth: '80px', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px' }} placeholder="Kho" min="0" required />
+                            </td>
+                            <td style={{ padding: '12px 10px', borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>
+                              <button type="button" onClick={() => { const newV = [...variants]; newV.splice(index, 1); setVariants(newV); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: '6px', transition: 'all 0.2s' }} title="Xóa phân loại" onMouseOver={(e) => e.currentTarget.style.background='#fee2e2'} onMouseOut={(e) => e.currentTarget.style.background='none'}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>delete</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div style={{ marginTop: '16px', fontSize: '13px', color: '#64748b', lineHeight: '1.5' }}>
+                      * Giá và kho riêng của phân loại sẽ ghi đè giá và kho chung khi khách hàng chọn mua phân loại này.
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '14px' }}>
+                    Chưa có phân loại nào. Hãy nhấn <strong style={{ margin: '0 4px', color: '#64748b' }}>+ Thêm phân loại</strong> bên trái để bắt đầu.
+                  </div>
+                )}
+              </div>
+            </div>
 
             <div className="form-group seller-products-form-group seller-products-full-width">
               <label>Hình ảnh sản phẩm (Click vào ảnh để chọn làm Ảnh Bìa)</label>
@@ -309,15 +455,64 @@ function SellerProductsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(viewingAttributesProduct.attributes).map(([key, value]) => (
+                  {Object.entries(viewingAttributesProduct.attributes || {}).map(([key, value]) => (
                     <tr key={key}>
                       <td style={{ fontWeight: '500', color: '#1e293b' }}>{key}</td>
                       <td style={{ color: '#475569' }}>{value}</td>
                     </tr>
                   ))}
+                  {(!viewingAttributesProduct.attributes || Object.keys(viewingAttributesProduct.attributes).length === 0) && (
+                    <tr>
+                      <td colSpan="2" style={{ textAlign: 'center', color: '#64748b' }}>Không có thông số chung</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
+
+            {viewingAttributesProduct.variants && viewingAttributesProduct.variants.length > 0 && (
+              <div className="admin-category-attr-table-container" style={{ marginTop: '20px' }}>
+                <h4 style={{ marginBottom: '10px', color: '#1e293b' }}>Các phân loại hàng</h4>
+                <table className="admin-category-attr-table">
+                  <thead>
+                    <tr>
+                      <th>Hình ảnh</th>
+                      <th>SKU</th>
+                      <th>Giá (VNĐ)</th>
+                      <th>Kho</th>
+                      <th>Thuộc tính</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {viewingAttributesProduct.variants.map((v, idx) => (
+                      <tr key={v.variantId || idx}>
+                        <td>
+                          {v.imageUrl ? (
+                            <img src={v.imageUrl.startsWith('data:image') ? v.imageUrl : v.imageUrl.startsWith('http') ? v.imageUrl : `${API_BASE_URL}${v.imageUrl.replace('/api', '')}`} alt="variant" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e2e8f0' }} />
+                          ) : (
+                            <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#94a3b8' }}>image</span>
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ fontWeight: '500' }}>{v.sku}</td>
+                        <td className="font-number" style={{ color: '#ef4444' }}>{v.price ? v.price.toLocaleString('vi-VN') : '0'} đ</td>
+                        <td className="font-number">{v.stockQuantity}</td>
+                        <td>
+                          {v.attributes && Object.keys(v.attributes).length > 0 ? (
+                            <ul style={{ margin: 0, paddingLeft: '16px', color: '#475569', fontSize: '13px' }}>
+                              {Object.entries(v.attributes).map(([ak, av]) => (
+                                <li key={ak}><strong>{ak}:</strong> {av}</li>
+                              ))}
+                            </ul>
+                          ) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

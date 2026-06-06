@@ -23,7 +23,7 @@ export const useSellerProducts = (token) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
@@ -39,9 +39,11 @@ export const useSellerProducts = (token) => {
   });
   const [images, setImages] = useState([]); // Array of { file, previewUrl }
   const [mainImageIndex, setMainImageIndex] = useState(0);
-  
+
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [attributeValues, setAttributeValues] = useState({});
+  const [variants, setVariants] = useState([]);
+  const [variantAttributeIds, setVariantAttributeIds] = useState([]);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -63,7 +65,7 @@ export const useSellerProducts = (token) => {
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Fetch attributes if category changes
     if (name === 'categoryId') {
       if (value) {
@@ -71,11 +73,15 @@ export const useSellerProducts = (token) => {
           .then(data => {
             setCategoryAttributes(data);
             setAttributeValues({}); // Reset values when category changes
+            setVariants([]); // Reset variants when category changes
+            setVariantAttributeIds([]); // Reset variant selections
           })
           .catch(err => console.error(err));
       } else {
         setCategoryAttributes([]);
         setAttributeValues({});
+        setVariants([]);
+        setVariantAttributeIds([]);
       }
     }
   }, []);
@@ -107,36 +113,90 @@ export const useSellerProducts = (token) => {
     });
   }, []);
 
+  const handleVariantImageChange = useCallback((index, file) => {
+    console.log("handleVariantImageChange called with index:", index, "file:", file);
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      console.log("FileReader loaded data URL, setting variants state...");
+      setVariants(prev => {
+        const newV = [...prev];
+        newV[index] = { ...newV[index], imageUrl: reader.result };
+        console.log("New variant state for index", index, ":", newV[index]);
+        return newV;
+      });
+    };
+    reader.onerror = (error) => {
+      console.error("FileReader error:", error);
+    };
+  }, []);
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setIsSubmitting(true);
-    
+
     try {
+      const finalPrice = variants.length > 0 ? Math.min(...variants.map(v => parseFloat(v.price) || 0)) : parseFloat(formData.price);
+      const finalStock = variants.length > 0 ? variants.reduce((sum, v) => sum + (parseInt(v.stockQuantity) || 0), 0) : parseInt(formData.stockQuantity);
+
+      let filesToUpload = [];
+      let existingImageIdsToKeep = [];
+      let mainImageId = null;
+
+      images.forEach((img, index) => {
+        if (img.file) {
+          filesToUpload.push(img.file);
+        } else if (img.imageId) {
+          existingImageIdsToKeep.push(img.imageId);
+          if (index === mainImageIndex) {
+            mainImageId = img.imageId;
+          }
+        }
+      });
+
+      // If main image is a new file, swap it to the front of filesToUpload
+      if (mainImageId == null && filesToUpload.length > 0) {
+        let newFileCounter = 0;
+        images.forEach((img, index) => {
+          if (img.file) {
+            if (index === mainImageIndex) {
+              const file = filesToUpload[newFileCounter];
+              filesToUpload.splice(newFileCounter, 1);
+              filesToUpload.unshift(file);
+            }
+            newFileCounter++;
+          }
+        });
+      }
+
       const payload = {
         ...formData,
         categoryId: parseInt(formData.categoryId),
-        price: parseFloat(formData.price),
-        stockQuantity: parseInt(formData.stockQuantity),
-        attributes: attributeValues
+        price: finalPrice,
+        stockQuantity: finalStock,
+        attributes: attributeValues,
+        existingImageIdsToKeep: existingImageIdsToKeep,
+        mainImageId: mainImageId,
+        variants: variants.map(v => ({
+          variantId: v.id && !v.id.toString().includes('.') ? parseInt(v.id) : null,
+          sku: v.sku || '',
+          price: parseFloat(v.price) || parseFloat(formData.price) || 0,
+          stockQuantity: parseInt(v.stockQuantity) || 0,
+          imageUrl: v.imageUrl || null,
+          attributes: v.attributes || {}
+        }))
       };
-      
+
       const formDataToSend = new FormData();
       formDataToSend.append('product', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
-      
-      let filesToUpload = [...images.map(img => img.file).filter(f => f !== null)];
-      if (filesToUpload.length > 0 && mainImageIndex !== 0 && mainImageIndex < filesToUpload.length) {
-        // Swap main image to index 0 so backend picks it as main
-        const mainFile = filesToUpload[mainImageIndex];
-        filesToUpload.splice(mainImageIndex, 1);
-        filesToUpload.unshift(mainFile);
-      }
-      
+
       filesToUpload.forEach((file) => {
         formDataToSend.append('images', file);
       });
-      
+
       if (editingProductId) {
         const updatedProduct = await updateProductApi(editingProductId, formDataToSend, token);
         setProducts(prev => prev.map(p => p.productId === editingProductId ? updatedProduct : p));
@@ -146,16 +206,17 @@ export const useSellerProducts = (token) => {
         setProducts(prev => [newProduct, ...prev]);
         setSuccess('Thêm sản phẩm thành công! Đang chờ Admin duyệt.');
       }
-      
+
       setShowAddForm(false);
       setEditingProductId(null);
-      
+
       // Reset form
       setFormData({
         categoryId: '', productName: '', description: '', price: '', stockQuantity: '', brand: '', keywords: ''
       });
       setAttributeValues({});
       setCategoryAttributes([]);
+      setVariants([]);
       images.forEach(img => URL.revokeObjectURL(img.previewUrl));
       setImages([]);
       setMainImageIndex(0);
@@ -165,7 +226,7 @@ export const useSellerProducts = (token) => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, attributeValues, images, mainImageIndex, token, editingProductId]);
+  }, [formData, attributeValues, images, mainImageIndex, token, editingProductId, variants]);
 
   const handleDeleteProduct = useCallback(async (productId) => {
     try {
@@ -201,14 +262,51 @@ export const useSellerProducts = (token) => {
           const attrValuesMap = {};
           if (product.attributes) {
             data.forEach(attr => {
-              if (product.attributes[attr.attrName]) {
+              if (product.attributes[attr.attrName] !== undefined) {
                 attrValuesMap[attr.attrId] = product.attributes[attr.attrName];
               }
             });
           }
           setAttributeValues(attrValuesMap);
+
+          if (product.variants) {
+            const mappedVariants = product.variants.map(v => {
+              const vAttrs = {};
+              if (v.attributes) {
+                data.forEach(attr => {
+                  if (v.attributes[attr.attrName] !== undefined) {
+                    vAttrs[attr.attrId] = v.attributes[attr.attrName];
+                  }
+                });
+              }
+              return {
+                id: v.variantId || Math.random().toString(), // local id for key
+                sku: v.sku || '',
+                price: v.price || '',
+                stockQuantity: v.stockQuantity || '',
+                imageUrl: v.imageUrl || '',
+                attributes: vAttrs
+              };
+            });
+            setVariants(mappedVariants);
+            const usedInVariants = new Set();
+            mappedVariants.forEach(v => {
+              if (v.attributes) {
+                Object.keys(v.attributes).forEach(attrId => usedInVariants.add(parseInt(attrId)));
+              }
+            });
+            console.log('mappedVariants:', mappedVariants);
+            console.log('usedInVariants:', Array.from(usedInVariants));
+            setVariantAttributeIds(Array.from(usedInVariants));
+          } else {
+            console.log('No variants found for product');
+            setVariants([]);
+            setVariantAttributeIds([]);
+          }
         })
         .catch(err => console.error(err));
+    } else {
+      setVariants([]);
     }
 
     images.forEach(img => {
@@ -229,7 +327,7 @@ export const useSellerProducts = (token) => {
       setImages([]);
       setMainImageIndex(0);
     }
-    
+
     setShowAddForm(true);
     // Scroll to top smoothly
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -243,6 +341,8 @@ export const useSellerProducts = (token) => {
     });
     setAttributeValues({});
     setCategoryAttributes([]);
+    setVariants([]);
+    setVariantAttributeIds([]);
     images.forEach(img => URL.revokeObjectURL(img.previewUrl));
     setImages([]);
     setMainImageIndex(0);
@@ -252,8 +352,9 @@ export const useSellerProducts = (token) => {
     products, categories, loading, error, success,
     showAddForm, setShowAddForm, isSubmitting, editingProductId,
     formData, images, mainImageIndex, setMainImageIndex,
-    categoryAttributes, attributeValues,
-    fetchData, handleInputChange, handleAttributeChange,
+    categoryAttributes, attributeValues, variants, setVariants,
+    variantAttributeIds, setVariantAttributeIds,
+    fetchData, handleInputChange, handleAttributeChange, handleVariantImageChange,
     handleImageChange, handleRemoveImage, handleSubmit,
     handleDeleteProduct, handleEditClick, handleCancelForm, buildCategoryOptions
   };

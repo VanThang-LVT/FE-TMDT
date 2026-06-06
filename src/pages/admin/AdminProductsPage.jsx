@@ -56,9 +56,9 @@ function AdminProductsPage() {
           <h2 className="admin-page-title">Kiểm duyệt Sản phẩm</h2>
           <p className="admin-page-desc">Phê duyệt hoặc từ chối các sản phẩm do người bán đăng lên.</p>
         </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div className="admin-search" style={{ width: '280px', backgroundColor: 'white', margin: 0 }}>
-            <span className="material-symbols-outlined" style={{color: '#94a3b8'}}>search</span>
+        <div className="admin-header-actions">
+          <div className="admin-search admin-search-wrapper">
+            <span className="material-symbols-outlined admin-search-icon">search</span>
             <input 
               type="text" 
               placeholder="Tìm kiếm sản phẩm, gian hàng..." 
@@ -72,7 +72,7 @@ function AdminProductsPage() {
       <Alert type="danger" message={error} />
       <Alert type="success" message={success} />
 
-      <div className="admin-tabs" style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+      <div className="admin-tabs admin-tabs-container">
         <button 
           className={`btn ${activeTab === 'PENDING' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveTab('PENDING')}
@@ -104,7 +104,7 @@ function AdminProductsPage() {
                 <th>Người bán</th>
                 <th>Ngày tạo</th>
                 <th>Trạng thái</th>
-                <th style={{textAlign: 'center'}}>Thao tác</th>
+                <th className="text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -116,26 +116,26 @@ function AdminProductsPage() {
                 filteredProducts.map(p => (
                   <tr key={p.productId}>
                     <td>
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '6px', background: 'var(--bg-app)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                      <div className="product-list-item">
+                        <div className="product-list-img-box">
                           {p.mainImageId ? (
-                            <img src={`${API_BASE_URL}/public/images/${p.mainImageId}`} alt={p.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={`${API_BASE_URL}/public/images/${p.mainImageId}`} alt={p.productName} className="product-list-img" />
                           ) : (
-                            <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)' }}>image</span>
+                            <span className="material-symbols-outlined product-list-img-placeholder">image</span>
                           )}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.productName}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Thương hiệu: {p.brand || '---'}</div>
+                          <div className="product-list-name">{p.productName}</div>
+                          <div className="product-list-brand">Thương hiệu: {p.brand || '---'}</div>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <div className="font-number" style={{ fontWeight: 600 }}>{p.price.toLocaleString('vi-VN')} đ</div>
-                      <div className="font-number" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Kho: {p.stockQuantity}</div>
+                      <div className="font-number product-list-price">{p.price.toLocaleString('vi-VN')} đ</div>
+                      <div className="font-number product-list-stock">Kho: {p.stockQuantity}</div>
                     </td>
                     <td>
-                      <div style={{ fontWeight: 500 }}>{p.shopName || `Shop #${p.shopId}`}</div>
+                      <div className="product-list-shop">{p.shopName || `Shop #${p.shopId}`}</div>
                     </td>
                     <td className="font-number">{new Date(p.createdAt).toLocaleDateString('vi-VN')}</td>
                     <td>{renderStatusBadge(p.status)}</td>
@@ -144,10 +144,9 @@ function AdminProductsPage() {
                         {p.status === 'PENDING' && (
                           <>
                             <button 
-                              className="admin-action-btn" 
+                              className="admin-action-btn icon-primary" 
                               title="Xem chi tiết" 
                               onClick={() => setSelectedProduct(p)}
-                              style={{ color: 'var(--primary-color)' }}
                             >
                               <span className="material-symbols-outlined icon-18">visibility</span>
                             </button>
@@ -172,10 +171,9 @@ function AdminProductsPage() {
                         {p.status === 'ACTIVE' && (
                           <>
                             <button 
-                              className="admin-action-btn" 
+                              className="admin-action-btn icon-primary" 
                               title="Xem chi tiết" 
                               onClick={() => setSelectedProduct(p)}
-                              style={{ color: 'var(--primary-color)' }}
                             >
                               <span className="material-symbols-outlined icon-18">visibility</span>
                             </button>
@@ -192,10 +190,9 @@ function AdminProductsPage() {
                         {p.status === 'REJECTED' && (
                           <>
                             <button 
-                              className="admin-action-btn" 
+                              className="admin-action-btn icon-primary" 
                               title="Xem chi tiết" 
                               onClick={() => setSelectedProduct(p)}
-                              style={{ color: 'var(--primary-color)' }}
                             >
                               <span className="material-symbols-outlined icon-18">visibility</span>
                             </button>
@@ -228,118 +225,173 @@ function AdminProductsPage() {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            <div className="product-detail-body">
+              <div className="product-detail-grid">
                 <div>
-                  <h4 style={{ marginBottom: '16px', color: '#1e293b', fontSize: '16px' }}>Hình ảnh ({selectedProduct.imageIds?.length || 0})</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
+                  <h4 className="product-detail-section-title first">Hình ảnh ({selectedProduct.imageIds?.length || 0})</h4>
+                  <div className="product-image-grid">
                     {selectedProduct.imageIds && selectedProduct.imageIds.length > 0 ? (
                       selectedProduct.imageIds.map(id => (
                         <img 
                           key={id} 
                           src={`${API_BASE_URL}/public/images/${id}`} 
                           alt="Product" 
-                          style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', border: id === selectedProduct.mainImageId ? '3px solid #2563eb' : '1px solid #e2e8f0' }}
+                          className={`product-image-item ${id === selectedProduct.mainImageId ? 'main' : ''}`}
                         />
                       ))
                     ) : (
-                      <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', gridColumn: '1 / -1', textAlign: 'center', color: '#64748b' }}>
+                      <div className="product-empty-box">
                         Không có hình ảnh
                       </div>
                     )}
                   </div>
                   
-                  <h4 style={{ marginTop: '28px', marginBottom: '16px', color: '#1e293b', fontSize: '16px' }}>Mô tả sản phẩm</h4>
-                  <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '12px', whiteSpace: 'pre-wrap', fontSize: '14px', lineHeight: '1.6', color: '#334155', border: '1px solid #e2e8f0' }}>
+                  <h4 className="product-detail-section-title">Mô tả sản phẩm</h4>
+                  <div className="product-desc-box">
                     {selectedProduct.description || 'Không có mô tả'}
                   </div>
 
-                  <h4 style={{ marginTop: '28px', marginBottom: '16px', color: '#1e293b', fontSize: '16px' }}>Từ khóa (Keywords)</h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <h4 className="product-detail-section-title">Từ khóa (Keywords)</h4>
+                  <div className="product-keyword-tags">
                     {selectedProduct.keywords ? selectedProduct.keywords.split(',').map((k, i) => (
-                      <span key={i} style={{ padding: '6px 16px', background: '#f1f5f9', borderRadius: '20px', fontSize: '13px', color: '#475569', fontWeight: '500' }}>{k.trim()}</span>
+                      <span key={i} className="product-keyword-tag">{k.trim()}</span>
                     )) : <span style={{ color: '#64748b', fontSize: '14px' }}>Không có từ khóa</span>}
                   </div>
                 </div>
 
                 <div>
-                  <h4 style={{ marginBottom: '16px', color: '#1e293b', fontSize: '16px' }}>Thông tin cơ bản</h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', background: '#ffffff' }}>
+                  <h4 className="product-detail-section-title first">Thông tin cơ bản</h4>
+                  <table className="product-info-table">
                     <tbody>
                       <tr>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', color: '#64748b', width: '35%' }}>Tên sản phẩm</td>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', fontWeight: '600', color: '#0f172a' }}>{selectedProduct.productName}</td>
+                        <td className="product-info-label" style={{ width: '35%' }}>Tên sản phẩm</td>
+                        <td className="product-info-value">{selectedProduct.productName}</td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>Thương hiệu</td>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', fontWeight: '500', color: '#334155' }}>{selectedProduct.brand || '---'}</td>
+                        <td className="product-info-label">Thương hiệu</td>
+                        <td className="product-info-value">{selectedProduct.brand || '---'}</td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>Danh mục</td>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', fontWeight: '500', color: '#334155' }}>{selectedProduct.categoryName}</td>
+                        <td className="product-info-label">Danh mục</td>
+                        <td className="product-info-value">{selectedProduct.categoryName}</td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>Giá bán</td>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', fontWeight: '700', color: '#2563eb', fontSize: '16px' }} className="font-number">{selectedProduct.price.toLocaleString('vi-VN')} đ</td>
+                        <td className="product-info-label">Giá bán</td>
+                        <td className="product-info-value blue font-number">{selectedProduct.price.toLocaleString('vi-VN')} đ</td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>Tồn kho</td>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #e2e8f0', fontWeight: '600', color: '#0f172a' }} className="font-number">{selectedProduct.stockQuantity}</td>
+                        <td className="product-info-label">Tồn kho</td>
+                        <td className="product-info-value font-number">{selectedProduct.stockQuantity}</td>
                       </tr>
                     </tbody>
                   </table>
 
-                  <h4 style={{ marginTop: '28px', marginBottom: '16px', color: '#1e293b', fontSize: '16px' }}>Thông số kỹ thuật</h4>
+                  <h4 className="product-detail-section-title">Thông số kỹ thuật</h4>
                   {selectedProduct.attributes && Object.keys(selectedProduct.attributes).length > 0 ? (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', background: '#f8fafc', borderRadius: '12px', overflow: 'hidden' }}>
+                    <table className="product-attr-table">
                       <tbody>
                         {Object.entries(selectedProduct.attributes).map(([key, value]) => (
                           <tr key={key}>
-                            <td style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', color: '#475569', width: '40%', fontWeight: '500' }}>{key}</td>
-                            <td style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', fontWeight: '600', color: '#0f172a' }}>{value}</td>
+                            <td className="product-attr-label">{key}</td>
+                            <td className="product-info-value">{value}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   ) : (
-                    <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '12px', color: '#64748b', fontSize: '14px', textAlign: 'center', border: '1px dashed #cbd5e1' }}>
+                    <div className="product-empty-box">
                       {selectedProduct.specifications || 'Không có thông số kỹ thuật'}
                     </div>
                   )}
+
+
                 </div>
               </div>
               
+              {selectedProduct.variants && selectedProduct.variants.length > 0 && (
+                <div className="product-history-container" style={{ borderTop: '1px solid #e2e8f0' }}>
+                  <h4 className="product-detail-section-title">Phân loại hàng ({selectedProduct.variants.length})</h4>
+                  {(() => {
+                    const variantAttributeNames = new Set();
+                    selectedProduct.variants.forEach(v => {
+                      if (v.attributes) {
+                        Object.keys(v.attributes).forEach(name => variantAttributeNames.add(name));
+                      }
+                    });
+                    const attrNames = Array.from(variantAttributeNames);
+                    return (
+                      <div className="product-variant-container">
+                        <table className="product-variant-table">
+                          <thead>
+                            <tr>
+                              <th>Hình ảnh</th>
+                              <th>SKU</th>
+                              {attrNames.map((name, idx) => (
+                                <th key={idx}>{name}</th>
+                              ))}
+                              <th style={{ textAlign: 'right' }}>Giá bán</th>
+                              <th style={{ textAlign: 'right' }}>Kho</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedProduct.variants.map((v, i) => (
+                              <tr key={i}>
+                                <td>
+                                  <div className="product-variant-img-box">
+                                    {v.imageUrl ? (
+                                      <img src={v.imageUrl.startsWith('http') ? v.imageUrl : `${API_BASE_URL}${v.imageUrl.replace('/api', '')}`} alt="variant" className="product-variant-img" />
+                                    ) : (
+                                      <span className="material-symbols-outlined" style={{ color: '#cbd5e1', fontSize: '18px' }}>image</span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="product-info-value">{v.sku || '---'}</div>
+                                </td>
+                                {attrNames.map((name, idx) => (
+                                  <td key={idx} style={{ color: '#475569' }}>
+                                    {v.attributes && v.attributes[name] ? v.attributes[name] : '---'}
+                                  </td>
+                                ))}
+                                <td className="product-info-value blue font-number" style={{ textAlign: 'right' }}>
+                                  {v.price ? v.price.toLocaleString('vi-VN') + ' đ' : '---'}
+                                </td>
+                                <td className="product-info-value font-number" style={{ textAlign: 'right' }}>
+                                  {v.stockQuantity}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+              
               {selectedProduct.approvalHistories && selectedProduct.approvalHistories.length > 0 && (
-                <div style={{ marginTop: '32px', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
-                  <h4 style={{ marginBottom: '16px', color: '#1e293b', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#64748b' }}>history</span>
+                <div className="product-history-container">
+                  <h4 className="product-history-title">
+                    <span className="material-symbols-outlined">history</span>
                     Lịch sử kiểm duyệt
                   </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {selectedProduct.approvalHistories.map((hist, index) => (
-                      <div key={hist.approvalId} style={{ display: 'flex', gap: '16px', padding: '16px', background: hist.status === 'APPROVED' ? '#f0fdf4' : '#fef2f2', border: `1px solid ${hist.status === 'APPROVED' ? '#bbf7d0' : '#fecaca'}`, borderRadius: '12px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: hist.status === 'APPROVED' ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                  <div className="product-history-list">
+                    {selectedProduct.approvalHistories.map((hist) => (
+                      <div key={hist.approvalId} className={`product-history-item ${hist.status.toLowerCase()}`}>
+                        <div className={`product-history-icon ${hist.status.toLowerCase()}`}>
+                          <span className="material-symbols-outlined">
                             {hist.status === 'APPROVED' ? 'check' : 'close'}
                           </span>
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                            <strong style={{ color: '#0f172a', fontSize: '14px' }}>
-                              {hist.status === 'APPROVED' ? 'Đã duyệt' : 'Từ chối/Khóa'}
-                            </strong>
-                            <span style={{ fontSize: '12px', color: '#64748b' }}>
-                              {new Date(hist.createdAt).toLocaleString('vi-VN')}
-                            </span>
+                        <div className="product-history-content">
+                          <div className="product-history-header">
+                            <strong>{hist.status === 'APPROVED' ? 'Đã duyệt' : 'Từ chối/Khóa'}</strong>
+                            <span>{new Date(hist.createdAt).toLocaleString('vi-VN')}</span>
                           </div>
-                          <div style={{ fontSize: '13px', color: '#475569', marginBottom: '4px' }}>
-                            Người duyệt: <span style={{ fontWeight: '500' }}>{hist.adminName || 'Hệ thống'}</span>
+                          <div className="product-history-body">
+                            <span>Bởi: {hist.adminName || 'Hệ thống'}</span>
+                            {hist.note && <div className="product-history-note">{hist.note}</div>}
                           </div>
-                          {hist.note && (
-                            <div style={{ fontSize: '14px', color: '#334155', background: 'white', padding: '10px 12px', borderRadius: '8px', marginTop: '8px', border: '1px solid #e2e8f0' }}>
-                              {hist.note}
-                            </div>
-                          )}
                         </div>
                       </div>
                     ))}
@@ -347,13 +399,8 @@ function AdminProductsPage() {
                 </div>
               )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #e2e8f0', margin: '20px -32px -32px -32px', padding: '16px 32px', background: '#f8fafc', borderRadius: '0 0 16px 16px' }}>
-              <button 
-                style={{ padding: '8px 24px', background: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', fontWeight: '600', color: '#475569', cursor: 'pointer', transition: 'all 0.2s' }} 
-                onClick={() => setSelectedProduct(null)}
-                onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
-                onMouseOut={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#475569'; }}
-              >
+            <div className="product-detail-footer">
+              <button className="btn-close" onClick={() => setSelectedProduct(null)}>
                 Đóng
               </button>
             </div>
