@@ -20,8 +20,10 @@ function AdminProductsPage() {
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user) navigate('/login');
-      else if (!isAdmin()) navigate('/customer');
+      if (!user)
+        navigate('/login');
+      else if (!isAdmin())
+        navigate('/customer');
     }
   }, [user, authLoading, isAdmin, navigate]);
 
@@ -42,10 +44,14 @@ function AdminProductsPage() {
 
   const renderStatusBadge = (status) => {
     switch (status) {
-      case 'PENDING': return <span className="admin-status-badge pending">Chờ duyệt</span>;
-      case 'ACTIVE': return <span className="admin-status-badge">Đã duyệt</span>;
-      case 'REJECTED': return <span className="admin-status-badge inactive">Từ chối</span>;
-      default: return <span className="admin-status-badge">{status}</span>;
+      case 'PENDING':
+        return <span className="admin-status-badge pending">Chờ duyệt</span>;
+      case 'ACTIVE':
+        return <span className="admin-status-badge">Đã duyệt</span>;
+      case 'REJECTED':
+        return <span className="admin-status-badge inactive">Từ chối</span>;
+      default:
+        return <span className="admin-status-badge">{status}</span>;
     }
   };
 

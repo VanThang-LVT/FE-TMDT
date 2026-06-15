@@ -113,7 +113,7 @@ function HomePage() {
                     key={parent.categoryId}
                     className="home-category-item"
                     onClick={() => {
-                      window.scrollTo({ top: 800, behavior: 'smooth' });
+                      navigate(`/category/${parent.categoryId}`);
                     }}
                   >
                     <div className="category-icon" style={{ padding: parent.hasImage ? '0' : undefined, overflow: 'hidden' }}>

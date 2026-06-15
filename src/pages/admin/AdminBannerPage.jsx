@@ -83,7 +83,8 @@ function AdminBannerPage() {
       data.append('buttonLink', formData.buttonLink);
       data.append('displayOrder', formData.displayOrder);
       data.append('isActive', formData.isActive);
-      if (imageFile) data.append('image', imageFile);
+      if (imageFile)
+        data.append('image', imageFile);
 
       if (editingBanner) {
         await updateBannerApi(editingBanner.bannerId, data, token);

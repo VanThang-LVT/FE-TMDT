@@ -10,10 +10,15 @@ import ShopRegistrationPage from '../pages/customer/ShopRegistrationPage';
 import SellerPage from '../pages/seller/SellerPage';
 import SellerProductsPage from '../pages/seller/SellerProductsPage';
 import HomePage from '../pages/home/HomePage';
+import ProductDetailPage from '../pages/product/ProductDetailPage';
+import CategoryPage from '../pages/category/CategoryPage';
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/product/:productId" element={<ProductDetailPage />} />
+      <Route path="/category/:categoryId" element={<CategoryPage />} />
 
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />

@@ -13,7 +13,7 @@ function Navbar({ brandName = 'EoViTi' }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // Close dropdowns when clicking outside
+
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
 

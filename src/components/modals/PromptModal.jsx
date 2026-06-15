@@ -4,7 +4,6 @@ import './Modal.css';
 const PromptModal = ({ isOpen, title, label, placeholder, onConfirm, onCancel, confirmText = "Xác nhận", cancelText = "Huỷ", type = "danger" }) => {
   const [inputValue, setInputValue] = useState('');
 
-  // Reset input when modal opens
   useEffect(() => {
     if (isOpen) {
       setInputValue('');

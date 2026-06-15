@@ -66,15 +66,15 @@ export const useSellerProducts = (token) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
-    // Fetch attributes if category changes
+
     if (name === 'categoryId') {
       if (value) {
         getCategoryAttributesApi(value)
-          .then(data => {
-            setCategoryAttributes(data);
-            setAttributeValues({}); // Reset values when category changes
-            setVariants([]); // Reset variants when category changes
-            setVariantAttributeIds([]); // Reset variant selections
+          .then(attributes => {
+            setCategoryAttributes(attributes);
+            setAttributeValues({});
+            setVariants([]);
+            setVariantAttributeIds([]);
           })
           .catch(err => console.error(err));
       } else {
@@ -114,21 +114,16 @@ export const useSellerProducts = (token) => {
   }, []);
 
   const handleVariantImageChange = useCallback((index, file) => {
-    console.log("handleVariantImageChange called with index:", index, "file:", file);
-    if (!file) return;
+    if (!file)
+      return;
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      console.log("FileReader loaded data URL, setting variants state...");
       setVariants(prev => {
         const newV = [...prev];
         newV[index] = { ...newV[index], imageUrl: reader.result };
-        console.log("New variant state for index", index, ":", newV[index]);
         return newV;
       });
-    };
-    reader.onerror = (error) => {
-      console.error("FileReader error:", error);
     };
   }, []);
 
@@ -156,8 +151,6 @@ export const useSellerProducts = (token) => {
           }
         }
       });
-
-      // If main image is a new file, swap it to the front of filesToUpload
       if (mainImageId == null && filesToUpload.length > 0) {
         let newFileCounter = 0;
         images.forEach((img, index) => {
@@ -180,14 +173,24 @@ export const useSellerProducts = (token) => {
         attributes: attributeValues,
         existingImageIdsToKeep: existingImageIdsToKeep,
         mainImageId: mainImageId,
-        variants: variants.map(v => ({
-          variantId: v.id && !v.id.toString().includes('.') ? parseInt(v.id) : null,
-          sku: v.sku || '',
-          price: parseFloat(v.price) || parseFloat(formData.price) || 0,
-          stockQuantity: parseInt(v.stockQuantity) || 0,
-          imageUrl: v.imageUrl || null,
-          attributes: v.attributes || {}
-        }))
+        variants: variants.map(v => {
+          const filteredAttrs = {};
+          if (v.attributes) {
+            variantAttributeIds.forEach(attrId => {
+              if (v.attributes[attrId] !== undefined) {
+                filteredAttrs[attrId] = v.attributes[attrId];
+              }
+            });
+          }
+          return {
+            variantId: v.id && !v.id.toString().includes('.') ? parseInt(v.id) : null,
+            sku: v.sku || '',
+            price: parseFloat(v.price) || parseFloat(formData.price) || 0,
+            stockQuantity: parseInt(v.stockQuantity) || 0,
+            imageUrl: v.imageUrl || null,
+            attributes: filteredAttrs
+          };
+        })
       };
 
       const formDataToSend = new FormData();
@@ -233,7 +236,8 @@ export const useSellerProducts = (token) => {
       await deleteProductApi(productId, token);
       setProducts(prev => prev.filter(p => p.productId !== productId));
       setSuccess('Xóa sản phẩm thành công!');
-      setTimeout(() => setSuccess(''), 3000);
+      setTimeout(() =>
+          setSuccess(''), 3000);
     } catch (err) {
       setError(err.message);
       setTimeout(() => setError(''), 3000);
@@ -243,6 +247,7 @@ export const useSellerProducts = (token) => {
 
 
   const handleEditClick = useCallback((product) => {
+    // DỌN PHẦN THÔNG TIN CƠ BẢN
     setEditingProductId(product.productId);
     setFormData({
       categoryId: product.categoryId || '',
@@ -255,13 +260,15 @@ export const useSellerProducts = (token) => {
     });
 
     if (product.categoryId) {
+      //LẤY THÔNG SỐ KỸ THUẬT
       getCategoryAttributesApi(product.categoryId)
-        .then(data => {
-          setCategoryAttributes(data);
+        .then(attributes => {
+          setCategoryAttributes(attributes);
 
+          // ĐỔ DỮ LIỆU CŨ
           const attrValuesMap = {};
           if (product.attributes) {
-            data.forEach(attr => {
+            attributes.forEach(attr => {
               if (product.attributes[attr.attrName] !== undefined) {
                 attrValuesMap[attr.attrId] = product.attributes[attr.attrName];
               }
@@ -269,11 +276,12 @@ export const useSellerProducts = (token) => {
           }
           setAttributeValues(attrValuesMap);
 
+          // XỬ LÝ PHÂN LOẠI
           if (product.variants) {
             const mappedVariants = product.variants.map(v => {
               const vAttrs = {};
               if (v.attributes) {
-                data.forEach(attr => {
+                attributes.forEach(attr => {
                   if (v.attributes[attr.attrName] !== undefined) {
                     vAttrs[attr.attrId] = v.attributes[attr.attrName];
                   }
@@ -295,11 +303,9 @@ export const useSellerProducts = (token) => {
                 Object.keys(v.attributes).forEach(attrId => usedInVariants.add(parseInt(attrId)));
               }
             });
-            console.log('mappedVariants:', mappedVariants);
-            console.log('usedInVariants:', Array.from(usedInVariants));
+
             setVariantAttributeIds(Array.from(usedInVariants));
           } else {
-            console.log('No variants found for product');
             setVariants([]);
             setVariantAttributeIds([]);
           }
@@ -309,18 +315,19 @@ export const useSellerProducts = (token) => {
       setVariants([]);
     }
 
+    // XỬ LÝ HÌNH ẢNH
     images.forEach(img => {
       if (img.file) URL.revokeObjectURL(img.previewUrl);
     });
 
     if (product.imageIds && product.imageIds.length > 0) {
+      // Lấy ID ảnh cũ
       const existingImages = product.imageIds.map(id => ({
         file: null,
         previewUrl: `${API_BASE_URL}/public/images/${id}`,
         imageId: id
       }));
       setImages(existingImages);
-      // Find main image index
       const mainIdx = product.imageIds.findIndex(id => id === product.mainImageId);
       setMainImageIndex(mainIdx >= 0 ? mainIdx : 0);
     } else {
@@ -329,7 +336,6 @@ export const useSellerProducts = (token) => {
     }
 
     setShowAddForm(true);
-    // Scroll to top smoothly
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [images]);
 
