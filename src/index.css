@@ -240,13 +240,13 @@ input::placeholder {
 .alert-danger {
   background: var(--error-glow);
   border: 1px solid var(--error-color);
-  color: #fda4af;
+  color: #e11d48;
 }
 
 .alert-success {
   background: var(--success-glow);
   border: 1px solid var(--success-color);
-  color: #6ee7b7;
+  color: #047857;
 }
 
 

@@ -416,8 +416,9 @@
 /* Bottom Section */
 .product-bottom-section {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  flex-direction: row;
+  gap: 40px;
+  align-items: flex-start;
 }
 
 .section-panel {
@@ -425,6 +426,14 @@
   padding: 32px;
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.panel-description {
+  flex: 6;
+}
+
+.panel-specs {
+  flex: 4;
 }
 
 .panel-title {
@@ -455,10 +464,11 @@
 }
 
 .spec-label {
-  width: 25%;
+  width: 35%;
   color: #64748b;
   background: #f8fafc;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .spec-value {

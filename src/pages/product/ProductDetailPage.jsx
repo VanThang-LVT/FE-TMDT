@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getPublicProductDetailApi } from '../../services/product.service';
 import { API_BASE_URL } from '../../utils/constants';
 import DashboardLayout from '../../layouts/DashboardLayout';
+import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import Alert from '../../components/Alert';
 import './ProductDetailPage.css';
 
 function ProductDetailPage() {
@@ -13,6 +16,9 @@ function ProductDetailPage() {
   const [error, setError] = useState(null);
   const [mainImage, setMainImage] = useState(null);
 
+  const { token } = useAuth();
+  const { addToCart } = useCart();
+  const [alertConfig, setAlertConfig] = useState({ message: '', type: 'success' });
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [quantity, setQuantity] = useState(1);
 
@@ -61,29 +67,14 @@ function ProductDetailPage() {
   }
 
   const availableAttributes = {};
-  let hasRealAttributes = false;
-
   if (product.variants && product.variants.length > 0) {
     product.variants.forEach(variant => {
-      if (variant.attributes && Object.keys(variant.attributes).length > 0) {
-        hasRealAttributes = true;
-      }
-    });
-
-    product.variants.forEach((variant, index) => {
-      if (hasRealAttributes) {
-        if (variant.attributes) {
-          Object.entries(variant.attributes).forEach(([key, val]) => {
-            if (!availableAttributes[key]) availableAttributes[key] = new Set();
-            availableAttributes[key].add(val);
-          });
-        }
-      } else {
-        if (!availableAttributes['Phân loại'])
-          availableAttributes['Phân loại'] = new Set();
-        const fallbackName = variant.sku || `Mẫu ${index + 1}`;
-        availableAttributes['Phân loại'].add(fallbackName);
-        variant.attributes = { 'Phân loại': fallbackName };
+      if (variant.attributes) {
+        Object.entries(variant.attributes).forEach(([key, val]) => {
+          if (!availableAttributes[key])
+            availableAttributes[key] = new Set();
+          availableAttributes[key].add(val);
+        });
       }
     });
   }
@@ -115,15 +106,13 @@ function ProductDetailPage() {
         displayPrice = minPrice.toLocaleString('vi-VN');
       }
     }
-    // Total stock of all variants
     displayStock = product.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0);
   }
 
   const handleAttributeSelect = (key, value) => {
     const newAttrs = { ...selectedAttributes, [key]: value };
     setSelectedAttributes(newAttrs);
-    
-    // Auto-update main image if variant has image
+
     const potentialVariant = product.variants.find(v => {
       return Object.entries(newAttrs).every(([k, v_val]) => v.attributes && v.attributes[k] === v_val);
     });
@@ -133,6 +122,13 @@ function ProductDetailPage() {
     }
   };
 
+  const showAlert = (message, type = 'success') => {
+    setAlertConfig({ message, type });
+    setTimeout(() => {
+      setAlertConfig({ message: '', type: 'success' });
+    }, 3000);
+  };
+
   const handleQuantityChange = (delta) => {
     const newQty = quantity + delta;
     if (newQty >= 1 && newQty <= displayStock) {
@@ -140,10 +136,35 @@ function ProductDetailPage() {
     }
   };
 
+  const handleAddToCart = async () => {
+    if (!token) {
+      showAlert("Vui lòng đăng nhập để mua hàng!", "danger");
+      setTimeout(() => navigate('/login'), 1500);
+      return;
+    }
+
+    if (Object.keys(availableAttributes).length > 0 && !selectedVariant) {
+      showAlert("Vui lòng chọn đầy đủ phân loại hàng (Kích cỡ, Màu sắc...)!", "danger");
+      return;
+    }
+
+    const cartData = {
+      productId: parseInt(productId),
+      variantId: selectedVariant ? selectedVariant.variantId : null,
+      quantity: quantity
+    };
+
+    const res = await addToCart(cartData);
+    if (res.success) {
+      showAlert("Thêm vào giỏ hàng thành công!", "success");
+    } else {
+      showAlert(res.message || "Lỗi thêm vào giỏ hàng", "danger");
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="product-detail-container">
-        {/* Breadcrumb */}
         <div className="breadcrumb">
           <span onClick={() => navigate('/')}>Trang chủ</span>
           <span className="separator">&gt;</span>
@@ -152,9 +173,7 @@ function ProductDetailPage() {
           <span className="current">{product.productName}</span>
         </div>
 
-        {/* Top Section: Images & Info */}
         <div className="product-top-section">
-          {/* Images */}
           <div className="product-gallery">
             <div className="main-image-container">
               {mainImage ? (
@@ -183,7 +202,6 @@ function ProductDetailPage() {
             )}
           </div>
 
-          {/* Info */}
           <div className="product-info-panel">
             <h1 className="product-title">{product.productName}</h1>
             
@@ -210,7 +228,6 @@ function ProductDetailPage() {
               <span className="price font-number">{displayPrice}</span>
             </div>
 
-            {/* Variants */}
             {Object.keys(availableAttributes).length > 0 && (
               <div className="product-variants">
                 {Object.entries(availableAttributes).map(([key, valuesSet]) => (
@@ -235,7 +252,6 @@ function ProductDetailPage() {
               </div>
             )}
 
-            {/* Quantity */}
             <div className="product-quantity-group">
               <span className="quantity-label">Số lượng</span>
               <div className="quantity-selector">
@@ -246,9 +262,13 @@ function ProductDetailPage() {
               <span className="stock-info">{displayStock} sản phẩm có sẵn</span>
             </div>
 
-            {/* Action Buttons */}
-            <div className="product-actions">
-              <button className="btn-add-cart">
+            <div className="product-actions" style={{ position: 'relative' }}>
+              {alertConfig.message && (
+                <div style={{ position: 'absolute', top: '-50px', left: 0, right: 0, zIndex: 10 }}>
+                  <Alert type={alertConfig.type} message={alertConfig.message} />
+                </div>
+              )}
+              <button className="btn-add-cart" onClick={handleAddToCart}>
                 <span className="material-symbols-outlined">add_shopping_cart</span>
                 Thêm vào giỏ hàng
               </button>
@@ -257,7 +277,6 @@ function ProductDetailPage() {
               </button>
             </div>
 
-            {/* Shop Info Placeholder */}
             <div className="shop-info-card">
               <div className="shop-avatar">
                 <span className="material-symbols-outlined">storefront</span>
@@ -271,16 +290,15 @@ function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Bottom Section: Description & Specs */}
         <div className="product-bottom-section">
-          <div className="section-panel">
+          <div className="section-panel panel-description">
             <h2 className="panel-title">Mô Tả Sản Phẩm</h2>
             <div className="panel-content description">
               {product.description || 'Chưa có mô tả cho sản phẩm này.'}
             </div>
           </div>
 
-          <div className="section-panel">
+          <div className="section-panel panel-specs">
             <h2 className="panel-title">Chi Tiết Sản Phẩm</h2>
             <div className="panel-content">
               <table className="specs-table">

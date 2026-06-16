@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { getMyNotificationsApi, getUnreadCountApi, markAsReadApi, markAllAsReadApi } from '../services/notification.service';
 import logoImg from '../assets/logo.png';
 
@@ -8,14 +9,17 @@ function Navbar({ brandName = 'EoViTi' }) {
   const { user, token, logout, isAdmin, isSeller } = useAuth();
   const navigate = useNavigate();
 
+  const { cart } = useCart();
+
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-
+  const [showCart, setShowCart] = useState(false);
 
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
+  const cartRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -24,6 +28,9 @@ function Navbar({ brandName = 'EoViTi' }) {
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserMenu(false);
+      }
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setShowCart(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -175,14 +182,96 @@ function Navbar({ brandName = 'EoViTi' }) {
                 )}
               </div>
 
-              {/* Shopping Cart */}
-              <button
-                onClick={() => navigate('/cart')}
-                className="icon-btn"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>shopping_cart</span>
-                <span className="badge-count">3</span>
-              </button>
+              {/* Shopping Cart Dropdown */}
+              <div className="relative" ref={cartRef} style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowCart(!showCart)}
+                  className="icon-btn"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>shopping_cart</span>
+                  {cart?.items?.length > 0 && (
+                    <span className="badge-count">
+                      {cart.items.length > 9 ? '9+' : cart.items.length}
+                    </span>
+                  )}
+                </button>
+
+                {showCart && (
+                  <div className="user-dropdown-menu" style={{ width: '380px' }}>
+                    <div className="user-dropdown-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <p className="user-name">Giỏ hàng</p>
+                    </div>
+                    
+                    <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+                      {!cart || !cart.items || cart.items.length === 0 ? (
+                        <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                          <p>Giỏ hàng trống</p>
+                        </div>
+                      ) : (
+                        cart.items.map(item => (
+                          <div
+                            key={item.cartItemId}
+                            style={{
+                              padding: '12px 16px',
+                              borderBottom: '1px solid var(--border-color)',
+                              display: 'flex',
+                              gap: '12px',
+                              alignItems: 'center',
+                              cursor: 'pointer'
+                            }}
+                          >
+
+                            <img 
+                              src={item.imageUrl ? `http://localhost:8080${item.imageUrl}` : 'https://via.placeholder.com/50'} 
+                              alt={item.productName} 
+                              style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <h5 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {item.productName}
+                              </h5>
+                              {item.attributes && item.attributes.length > 0 && (
+                                <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                  {item.attributes.map(a => a.value).join(', ')}
+                                </p>
+                              )}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                                <span style={{ fontSize: '13.5px', fontWeight: '600', color: '#e53e3e' }}>
+                                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
+                                </span>
+                                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>x{item.quantity}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    
+                    {cart && cart.items && cart.items.length > 0 && (
+                      <div style={{ padding: '12px 16px', background: '#f8fafc', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                          {cart.items.length} mặt hàng
+                        </span>
+                        <button 
+                          onClick={() => { setShowCart(false); navigate('/cart'); }}
+                          style={{
+                            padding: '8px 16px',
+                            background: '#2563eb',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Xem Chi Tiết
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* User Profile */}
               <div className="relative" ref={userMenuRef} style={{ position: 'relative' }}>

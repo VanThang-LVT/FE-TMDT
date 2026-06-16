@@ -12,6 +12,7 @@ import SellerProductsPage from '../pages/seller/SellerProductsPage';
 import HomePage from '../pages/home/HomePage';
 import ProductDetailPage from '../pages/product/ProductDetailPage';
 import CategoryPage from '../pages/category/CategoryPage';
+import CartPage from '../pages/cart/CartPage';
 
 function AppRoutes() {
   return (
@@ -19,6 +20,7 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/product/:productId" element={<ProductDetailPage />} />
       <Route path="/category/:categoryId" element={<CategoryPage />} />
+      <Route path="/cart" element={<CartPage />} />
 
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
