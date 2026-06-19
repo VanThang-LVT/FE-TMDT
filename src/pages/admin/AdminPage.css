@@ -231,6 +231,33 @@
   font-size: 18px;
 }
 
+.admin-action-btn.edit {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+.admin-action-btn.edit:hover {
+  background-color: #dcfce7;
+}
+
+.admin-action-btn.reject {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+.admin-action-btn.reject:hover {
+  background-color: #fee2e2;
+}
+
+.admin-action-btn.approve {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+.admin-action-btn.approve:hover {
+  background-color: #dbeafe;
+}
+
 .admin-action-btn.attr-btn {
   background: #8b5cf6;
   color: white;
@@ -882,3 +909,55 @@
 .product-list-shop { font-weight: 500; }
 .icon-primary { color: var(--primary-color); }
 
+
+/* Generic Admin Modal Styles */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.admin-modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.admin-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.admin-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+}
+
+.admin-modal-close:hover {
+  color: #333;
+}

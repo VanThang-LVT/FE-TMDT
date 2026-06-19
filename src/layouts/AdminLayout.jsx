@@ -133,6 +133,10 @@ const AdminLayout = ({ children }) => {
             <span className="material-symbols-outlined">view_carousel</span>
             {!isSidebarCollapsed && <span>Quản lý Banner</span>}
           </NavLink>
+          <NavLink to="/admin/commissions" className={({isActive}) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Quản lý Hoa hồng">
+            <span className="material-symbols-outlined">percent</span>
+            {!isSidebarCollapsed && <span>Cấu hình Hoa hồng</span>}
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">

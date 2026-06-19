@@ -5,7 +5,9 @@ import AdminPage from '../pages/admin/AdminPage';
 import AdminCategoryPage from '../pages/admin/AdminCategoryPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage';
 import AdminBannerPage from '../pages/admin/AdminBannerPage';
+import AdminCommissionPage from '../pages/admin/AdminCommissionPage';
 import ProfilePage from '../pages/customer/ProfilePage';
+import OrdersPage from '../pages/customer/OrdersPage';
 import ShopRegistrationPage from '../pages/customer/ShopRegistrationPage';
 import SellerPage from '../pages/seller/SellerPage';
 import SellerProductsPage from '../pages/seller/SellerProductsPage';
@@ -13,6 +15,7 @@ import HomePage from '../pages/home/HomePage';
 import ProductDetailPage from '../pages/product/ProductDetailPage';
 import CategoryPage from '../pages/category/CategoryPage';
 import CartPage from '../pages/cart/CartPage';
+import CheckoutPage from '../pages/checkout/CheckoutPage';
 
 function AppRoutes() {
   return (
@@ -21,12 +24,15 @@ function AppRoutes() {
       <Route path="/product/:productId" element={<ProductDetailPage />} />
       <Route path="/category/:categoryId" element={<CategoryPage />} />
       <Route path="/cart" element={<CartPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
 
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       
       {/* Protect Customer Profile */}
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/orders/history" element={<OrdersPage />} />
 
       {/* Protect Shop Registration */}
       <Route path="/register-shop" element={<ShopRegistrationPage />} />
@@ -36,6 +42,7 @@ function AppRoutes() {
       <Route path="/admin/categories" element={<AdminCategoryPage />} />
       <Route path="/admin/products" element={<AdminProductsPage />} />
       <Route path="/admin/banners" element={<AdminBannerPage />} />
+      <Route path="/admin/commissions" element={<AdminCommissionPage />} />
 
       {/* Seller Routes */}
       <Route path="/seller" element={<SellerPage />} />
