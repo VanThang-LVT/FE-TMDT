@@ -78,6 +78,7 @@
 
 /* Status Colors - Themed Blue mostly */
 .status-pending { background-color: var(--primary-glow); color: var(--primary-color); }
+.status-paid { background-color: #d1fae5; color: #059669; }
 .status-processing { background-color: rgba(99, 102, 241, 0.2); color: #4338ca; }
 .status-shipped { background-color: #e0f2fe; color: #0284c7; }
 .status-delivered { background-color: var(--success-glow); color: var(--success-color); }

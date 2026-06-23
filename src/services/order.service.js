@@ -33,3 +33,34 @@ export const getMyOrdersApi = async (token) => {
 
   return data.data;
 };
+
+export const createVNPayPaymentUrlApi = async (amount, orderId, token) => {
+  const response = await fetch(`${API_BASE_URL}/payment/vnpay/create_payment?amount=${amount}&orderId=${orderId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi khi tạo link thanh toán VNPay');
+  }
+  return data.data;
+};
+
+export const verifyVNPayPaymentApi = async (queryString, token) => {
+  const response = await fetch(`${API_BASE_URL}/payment/vnpay/verify${queryString}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi khi xác thực thanh toán VNPay');
+  }
+
+  return data;
+};

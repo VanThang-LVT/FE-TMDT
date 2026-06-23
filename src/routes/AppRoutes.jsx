@@ -16,6 +16,7 @@ import ProductDetailPage from '../pages/product/ProductDetailPage';
 import CategoryPage from '../pages/category/CategoryPage';
 import CartPage from '../pages/cart/CartPage';
 import CheckoutPage from '../pages/checkout/CheckoutPage';
+import PaymentReturnPage from '../pages/checkout/PaymentReturnPage';
 
 function AppRoutes() {
   return (
@@ -25,6 +26,7 @@ function AppRoutes() {
       <Route path="/category/:categoryId" element={<CategoryPage />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/payment-return" element={<PaymentReturnPage />} />
 
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />

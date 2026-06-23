@@ -1,0 +1,122 @@
+.payment-return-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.payment-return-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.payment-return-card h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #1e293b;
+  font-size: 24px;
+}
+
+.payment-return-card p {
+  color: #64748b;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.icon-success {
+  width: 80px;
+  height: 80px;
+  background-color: #22c55e;
+  color: white;
+  font-size: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.icon-fail {
+  width: 80px;
+  height: 80px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.btn-return-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: 1px solid transparent;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-return-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-return-secondary {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-return-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.btn-return-group {
+  display: flex;
+  gap: 15px;
+  align-items: stretch;
+}
+
+.btn-return-group > button {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  height: 48px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

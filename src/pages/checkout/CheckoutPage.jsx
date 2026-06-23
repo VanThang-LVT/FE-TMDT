@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { placeOrderApi } from '../../services/order.service';
+import { placeOrderApi, createVNPayPaymentUrlApi } from '../../services/order.service';
 import Alert from '../../components/Alert';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import './CheckoutPage.css';
@@ -45,7 +45,6 @@ const CheckoutPage = () => {
       setErrorMsg('Vui lòng điền đầy đủ thông tin giao hàng');
       return;
     }
-
     setIsSubmitting(true);
     setErrorMsg('');
     try {
@@ -54,7 +53,6 @@ const CheckoutPage = () => {
         navigate('/login');
         return;
       }
-
       const orderData = {
         receiverName: formData.receiverName,
         receiverPhone: formData.receiverPhone,
@@ -62,13 +60,19 @@ const CheckoutPage = () => {
         paymentMethod: formData.paymentMethod,
         cartItemIds: selectedItems.map(i => i.cartItemId)
       };
-
-      await placeOrderApi(orderData, token);
+      const order = await placeOrderApi(orderData, token);
       await refreshCart();
-      setSuccessMsg('Đặt hàng thành công!');
-      setTimeout(() => {
-        navigate('/orders');
-      }, 2000);
+
+      if (formData.paymentMethod === 'VNPAY') {
+        setSuccessMsg('Đang chuyển hướng sang VNPAY...');
+        const paymentUrl = await createVNPayPaymentUrlApi(order.totalAmount, order.orderId, token);
+        window.location.href = paymentUrl;
+      } else {
+        setSuccessMsg('Đặt hàng thành công!');
+        setTimeout(() => {
+          navigate('/orders');
+        }, 2000);
+      }
 
     } catch (error) {
       setErrorMsg(error.message || 'Có lỗi xảy ra khi đặt hàng');
