@@ -201,3 +201,39 @@
 .profile-logout-btn:hover {
   background: var(--error-glow) !important;
 }
+
+/* Change Password Section */
+.profile-password-card {
+  margin-top: 20px;
+}
+
+.profile-password-intro {
+  margin-bottom: 15px;
+}
+
+.profile-password-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.profile-otp-btn {
+  padding: 8px 16px;
+  width: auto;
+}
+
+.profile-password-form-group {
+  margin-bottom: 15px;
+}
+
+.profile-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.profile-submit-btn {
+  width: auto;
+  padding: 10px 20px;
+}

@@ -1,12 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import AdminPage from '../pages/admin/AdminPage';
 import AdminCategoryPage from '../pages/admin/AdminCategoryPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage';
 import AdminBannerPage from '../pages/admin/AdminBannerPage';
 import AdminCommissionPage from '../pages/admin/AdminCommissionPage';
 import ProfilePage from '../pages/customer/ProfilePage';
+import ChangePasswordPage from '../pages/customer/ChangePasswordPage';
 import OrdersPage from '../pages/customer/OrdersPage';
 import ShopRegistrationPage from '../pages/customer/ShopRegistrationPage';
 import SellerPage from '../pages/seller/SellerPage';
@@ -30,9 +32,11 @@ function AppRoutes() {
 
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       
       {/* Protect Customer Profile */}
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/change-password" element={<ChangePasswordPage />} />
       <Route path="/orders" element={<OrdersPage />} />
       <Route path="/orders/history" element={<OrdersPage />} />
 

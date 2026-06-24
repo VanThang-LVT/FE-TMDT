@@ -93,6 +93,12 @@ function LoginPage() {
           </div>
         </div>
 
+        <div className="auth-forgot-password">
+          <Link to="/forgot-password" className="auth-forgot-link">
+            Quên mật khẩu?
+          </Link>
+        </div>
+
         <button type="submit" className="btn" disabled={loading}>
           {loading ? 'Đang xử lý...' : 'ĐĂNG NHẬP'}
         </button>

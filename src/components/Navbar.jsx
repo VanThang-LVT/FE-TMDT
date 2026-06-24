@@ -305,6 +305,10 @@ function Navbar({ brandName = 'EoViTi' }) {
                         <span className="material-symbols-outlined">person</span>
                         Thông tin cá nhân
                       </Link>
+                      <Link to="/change-password" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                        <span className="material-symbols-outlined">lock_reset</span>
+                        Đổi mật khẩu
+                      </Link>
                       <Link to="/cart" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
                         <span className="material-symbols-outlined">shopping_cart</span>
                         Giỏ hàng
