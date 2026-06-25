@@ -75,18 +75,28 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (cartData) => {
-    if (!token) return { success: false, message: 'Bạn chưa đăng nhập' };
+    const addToCart = async (cartData, showToast = true) => {
+    if (!token) return {
+      success: false,
+      message: 'Bạn chưa đăng nhập'
+    };
 
     try {
       setError('');
-      await addToCartApi(cartData, token);
-      setSuccess('Đã thêm vào giỏ hàng');
+      const data = await addToCartApi(cartData, token);
+      if (showToast) {
+        setSuccess('Đã thêm vào giỏ hàng');
+      }
       await fetchCart();
-      return { success: true };
+      return {
+        success: true,
+        cartItemId: data.cartItemId };
     } catch (err) {
       setError(err.message || 'Lỗi thêm vào giỏ hàng');
-      return { success: false, message: err.message };
+      return {
+        success: false,
+        message: err.message
+      };
     }
   };
 
