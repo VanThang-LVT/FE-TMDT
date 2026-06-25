@@ -116,7 +116,7 @@ function ProductDetailPage() {
     const potentialVariant = product.variants.find(v => {
       return Object.entries(newAttrs).every(([k, v_val]) => v.attributes && v.attributes[k] === v_val);
     });
-    
+
     if (potentialVariant && potentialVariant.imageUrl) {
       setMainImage(potentialVariant.imageUrl.startsWith('http') ? potentialVariant.imageUrl : `${API_BASE_URL}${potentialVariant.imageUrl.replace('/api', '')}`);
     }
@@ -162,6 +162,32 @@ function ProductDetailPage() {
     }
   };
 
+  const handleBuyNow = async () => {
+    if (!token) {
+      showAlert("Vui lòng đăng nhập để mua hàng!", "danger");
+      setTimeout(() => navigate('/login'), 1500);
+      return;
+    }
+
+    if (Object.keys(availableAttributes).length > 0 && !selectedVariant) {
+      showAlert("Vui lòng chọn đầy đủ phân loại hàng (Kích cỡ, Màu sắc...)!", "danger");
+      return;
+    }
+
+    const cartData = {
+      productId: parseInt(productId),
+      variantId: selectedVariant ? selectedVariant.variantId : null,
+      quantity: quantity
+    };
+
+    const res = await addToCart(cartData, false);
+    if (res.success && res.cartItemId) {
+      navigate('/checkout', { state: { selectedItemIds: [res.cartItemId] } });
+    } else {
+      showAlert(res.message || "Lỗi thêm vào giỏ hàng", "danger");
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="product-detail-container">
@@ -189,8 +215,8 @@ function ProductDetailPage() {
                 {product.imageIds.map(id => {
                   const url = `${API_BASE_URL}/public/images/${id}`;
                   return (
-                    <div 
-                      key={id} 
+                    <div
+                      key={id}
                       className={`thumbnail-item ${mainImage === url ? 'active' : ''}`}
                       onClick={() => setMainImage(url)}
                     >
@@ -204,7 +230,7 @@ function ProductDetailPage() {
 
           <div className="product-info-panel">
             <h1 className="product-title">{product.productName}</h1>
-            
+
             <div className="product-meta">
               <div className="meta-item">
                 <span className="label">Thương hiệu:</span>
@@ -219,7 +245,7 @@ function ProductDetailPage() {
               </div>
               <div className="meta-item">
                 <span className="label">Đã bán:</span>
-                <span className="value sales">8.5k</span>
+                <span className="value sales">{product.salesCount || 0}</span>
               </div>
             </div>
 
@@ -272,7 +298,7 @@ function ProductDetailPage() {
                 <span className="material-symbols-outlined">add_shopping_cart</span>
                 Thêm vào giỏ hàng
               </button>
-              <button className="btn-buy-now">
+              <button className="btn-buy-now" onClick={handleBuyNow}>
                 Mua ngay
               </button>
             </div>
