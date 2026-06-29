@@ -64,3 +64,65 @@ export const approveOrRejectShopApi = async (id, status, token, reason = null) =
   }
   return data;
 };
+
+export const getShopOrdersApi = async (token, params = {}) => {
+  const queryParams = new URLSearchParams();
+  if (params.page !== undefined) queryParams.append('page', params.page);
+  if (params.size !== undefined) queryParams.append('size', params.size);
+  if (params.keyword) queryParams.append('keyword', params.keyword);
+  if (params.statuses && params.statuses.length > 0) {
+    queryParams.append('statuses', params.statuses.join(','));
+  }
+  if (params.startDate) queryParams.append('startDate', params.startDate);
+  if (params.endDate) queryParams.append('endDate', params.endDate);
+
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/shops/orders${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi lấy danh sách đơn hàng!');
+  }
+  return data.data; // data.data is now a Page object
+};
+
+export const updateShopOrderStatusApi = async (shopOrderId, status, token, cancelReason = null) => {
+  let url = `${API_BASE_URL}/shops/orders/${shopOrderId}/status?status=${status}`;
+  if (cancelReason) {
+    url += `&cancelReason=${encodeURIComponent(cancelReason)}`;
+  }
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi cập nhật trạng thái đơn hàng!');
+  }
+  return data.data;
+};
+
+export const getOrderCountsApi = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/shops/orders/counts`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi lấy số lượng đơn hàng!');
+  }
+  return data.data;
+};

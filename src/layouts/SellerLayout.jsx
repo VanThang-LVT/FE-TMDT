@@ -124,6 +124,10 @@ const SellerLayout = ({ children }) => {
             <span className="material-symbols-outlined">inventory_2</span>
             {!isSidebarCollapsed && <span>Quản lý sản phẩm</span>}
           </a>
+          <a className={`admin-nav-item ${location.pathname === '/seller/orders' ? 'active' : ''}`} onClick={() => navigate('/seller/orders')} title="Quản lý đơn hàng">
+            <span className="material-symbols-outlined">receipt_long</span>
+            {!isSidebarCollapsed && <span>Quản lý đơn hàng</span>}
+          </a>
         </nav>
 
         <div className="admin-sidebar-footer">

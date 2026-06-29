@@ -13,6 +13,7 @@ import OrdersPage from '../pages/customer/OrdersPage';
 import ShopRegistrationPage from '../pages/customer/ShopRegistrationPage';
 import SellerPage from '../pages/seller/SellerPage';
 import SellerProductsPage from '../pages/seller/SellerProductsPage';
+import SellerOrdersPage from '../pages/seller/SellerOrdersPage';
 import HomePage from '../pages/home/HomePage';
 import ProductDetailPage from '../pages/product/ProductDetailPage';
 import CategoryPage from '../pages/category/CategoryPage';
@@ -53,6 +54,7 @@ function AppRoutes() {
       {/* Seller Routes */}
       <Route path="/seller" element={<SellerPage />} />
       <Route path="/seller/products" element={<SellerProductsPage />} />
+      <Route path="/seller/orders" element={<SellerOrdersPage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

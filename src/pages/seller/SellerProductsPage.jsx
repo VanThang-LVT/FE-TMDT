@@ -40,9 +40,9 @@ function SellerProductsPage() {
 
   const renderStatusBadge = (status) => {
     switch (status) {
-      case 'PENDING': return <span className="badge badge-admin">CHỜ DUYỆT</span>;
-      case 'ACTIVE': return <span className="badge badge-success" style={{ background: 'var(--success-glow)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)' }}>ĐANG BÁN</span>;
-      case 'REJECTED': return <span className="badge badge-danger">BỊ TỪ CHỐI</span>;
+      case 'PENDING': return <span className="badge badge-admin" style={{ whiteSpace: 'nowrap' }}>CHỜ DUYỆT</span>;
+      case 'ACTIVE': return <span className="badge badge-success" style={{ background: 'var(--success-glow)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', whiteSpace: 'nowrap' }}>ĐANG BÁN</span>;
+      case 'REJECTED': return <span className="badge badge-danger" style={{ whiteSpace: 'nowrap' }}>BỊ TỪ CHỐI</span>;
       default: return <span className="badge">{status}</span>;
     }
   };
@@ -332,7 +332,7 @@ function SellerProductsPage() {
                   <th>Thông số kỹ thuật</th>
                   <th>Trạng thái</th>
                   <th>Ngày tạo</th>
-                  <th>Thao tác</th>
+                  <th style={{ textAlign: 'center' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -377,31 +377,29 @@ function SellerProductsPage() {
                     <td>{renderStatusBadge(p.status)}</td>
                     <td className="font-number">{new Date(p.createdAt).toLocaleDateString('vi-VN')}</td>
                     <td>
-                      <div className="admin-actions">
+                      <div className="admin-actions center">
                         <button
                           className="admin-action-btn edit"
                           title="Sửa sản phẩm"
-                          style={{ color: '#3b82f6' }}
                           onClick={() => handleEditClick(p)}
                         >
-                          <span className="material-symbols-outlined icon-18">edit</span>
+                          <span className="material-symbols-outlined icon-18">edit</span> Sửa
                         </button>
                         <button
                           className="admin-action-btn"
                           title="Lịch sử kiểm duyệt"
-                          style={{ color: '#8b5cf6' }}
+                          style={{ backgroundColor: '#f3e8ff', color: '#9333ea', border: '1px solid #d8b4fe' }}
                           onClick={() => setViewingHistoryProduct(p)}
                         >
-                          <span className="material-symbols-outlined icon-18">history</span>
+                          <span className="material-symbols-outlined icon-18">history</span> Lịch sử
                         </button>
                         <button
-                          className="admin-action-btn delete"
+                          className="admin-action-btn reject"
                           title="Xóa sản phẩm"
-                          style={{ color: '#ef4444' }}
                           disabled={p.status === 'ACTIVE'}
                           onClick={() => setProductToDelete(p.productId)}
                         >
-                          <span className="material-symbols-outlined icon-18">delete</span>
+                          <span className="material-symbols-outlined icon-18">delete</span> Xóa
                         </button>
                       </div>
                     </td>

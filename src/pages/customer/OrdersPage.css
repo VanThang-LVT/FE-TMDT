@@ -193,3 +193,341 @@
   font-size: 22px;
   margin-left: 8px;
 }
+
+/* Timeline Styles for Customer Orders Page */
+.customer-timeline-container {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.customer-timeline-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.horizontal-timeline-list {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 12px 4px 8px 4px;
+  /* Custom scrollbar for horizontal timeline */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.horizontal-timeline-list::-webkit-scrollbar {
+  height: 6px;
+}
+.horizontal-timeline-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.horizontal-timeline-item {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 160px;
+  max-width: 200px;
+  padding-top: 24px;
+}
+
+.horizontal-timeline-item::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 16px;
+  width: 100%;
+  height: 2px;
+  background-color: #e2e8f0;
+  z-index: 0;
+}
+
+/* Ẩn đường kẻ nối ở phần tử cuối cùng */
+.horizontal-timeline-item:last-child::before {
+  display: none;
+}
+
+.horizontal-timeline-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #e2e8f0;
+  z-index: 1;
+}
+
+.horizontal-timeline-item.active .horizontal-timeline-marker {
+  background-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-light, #bfdbfe);
+}
+
+.horizontal-timeline-item.active ~ .horizontal-timeline-item .horizontal-timeline-marker {
+  /* Nếu cần tuỳ chỉnh các item sau item active */
+}
+
+.horizontal-timeline-content {
+  padding-left: 0;
+  text-align: left;
+}
+
+.horizontal-timeline-status {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.horizontal-timeline-time {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* --- Modal Custom CSS --- */
+.order-detail-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #64748b;
+  transition: background-color 0.2s;
+}
+.order-detail-close-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.order-detail-modal-title {
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-size: 20px;
+  color: var(--primary-color);
+}
+
+.order-detail-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.order-detail-info-left,
+.order-detail-info-right {
+  flex: 1;
+  min-width: 250px;
+}
+.order-detail-info-right {
+  text-align: left;
+}
+
+.order-detail-section-title {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  color: #475569;
+}
+
+.order-detail-info-text {
+  margin: 0 0 8px 0;
+}
+
+.order-detail-list-title {
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #475569;
+}
+
+.order-detail-products {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 12px;
+  padding-bottom: 12px;
+}
+
+.order-detail-shop-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.order-detail-shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.order-detail-shop-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-detail-shop-icon {
+  color: var(--primary-color);
+}
+
+.order-detail-shop-id {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: normal;
+}
+
+.order-detail-shop-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.order-detail-item {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.order-detail-img-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.order-detail-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.order-detail-item-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.order-item-col-name {
+  flex: 2;
+  padding-right: 12px;
+}
+
+.order-item-col-price {
+  flex: 1;
+  text-align: left;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.order-item-col-qty {
+  flex: 1;
+  text-align: center;
+  color: #475569;
+  font-weight: 500;
+}
+
+.order-item-col-total {
+  flex: 1;
+  text-align: right;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.order-detail-item-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.order-detail-item-variant {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.order-detail-total-row {
+  text-align: right;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 16px;
+}
+
+.order-detail-total-amount {
+  color: var(--primary-color);
+  font-size: 20px;
+  margin-left: 8px;
+}
+.order-detail-modal {
+  position: relative;
+}
+
+/* Extracted from inline styles */
+.order-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.order-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.order-actions .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transform: translateY(-8px);
+}
+
+.order-actions .btn-secondary {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #475569;
+}
+
+.order-actions .btn-secondary:hover {
+  background-color: #f8fafc;
+}
+
+.order-actions .material-symbols-outlined {
+  font-size: 18px;
+  margin-right: 6px;
+}
+
+.order-total {
+  font-size: 15px !important;
+  display: flex !important;
+  align-items: baseline !important;
+}

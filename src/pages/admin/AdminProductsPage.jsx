@@ -44,14 +44,10 @@ function AdminProductsPage() {
 
   const renderStatusBadge = (status) => {
     switch (status) {
-      case 'PENDING':
-        return <span className="admin-status-badge pending">Chờ duyệt</span>;
-      case 'ACTIVE':
-        return <span className="admin-status-badge">Đã duyệt</span>;
-      case 'REJECTED':
-        return <span className="admin-status-badge inactive">Từ chối</span>;
-      default:
-        return <span className="admin-status-badge">{status}</span>;
+      case 'PENDING': return <span className="admin-status-badge" style={{ whiteSpace: 'nowrap' }}>Chờ duyệt</span>;
+      case 'ACTIVE': return <span className="admin-status-badge success" style={{ whiteSpace: 'nowrap' }}>Đang bán</span>;
+      case 'REJECTED': return <span className="admin-status-badge inactive" style={{ whiteSpace: 'nowrap' }}>Bị từ chối</span>;
+      default: return <span className="admin-status-badge" style={{ whiteSpace: 'nowrap' }}>{status}</span>;
     }
   };
 
@@ -110,7 +106,7 @@ function AdminProductsPage() {
                 <th>Người bán</th>
                 <th>Ngày tạo</th>
                 <th>Trạng thái</th>
-                <th className="text-center">Thao tác</th>
+                <th style={{ textAlign: 'center' }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -146,23 +142,25 @@ function AdminProductsPage() {
                     <td className="font-number">{new Date(p.createdAt).toLocaleDateString('vi-VN')}</td>
                     <td>{renderStatusBadge(p.status)}</td>
                     <td>
-                      <div className="admin-actions">
+                      <div className="admin-actions center">
+                        <button 
+                          className="admin-action-btn" 
+                          title="Xem chi tiết" 
+                          onClick={() => setSelectedProduct(p)}
+                          style={{ backgroundColor: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe' }}
+                        >
+                          <span className="material-symbols-outlined icon-18">visibility</span> Chi tiết
+                        </button>
+
                         {p.status === 'PENDING' && (
                           <>
-                            <button 
-                              className="admin-action-btn icon-primary" 
-                              title="Xem chi tiết" 
-                              onClick={() => setSelectedProduct(p)}
-                            >
-                              <span className="material-symbols-outlined icon-18">visibility</span>
-                            </button>
                             <button 
                               className="admin-action-btn approve" 
                               title="Duyệt" 
                               disabled={isProcessing}
                               onClick={() => handleApprove(p.productId)}
                             >
-                              <span className="material-symbols-outlined icon-18">check_circle</span>
+                              <span className="material-symbols-outlined icon-18">check_circle</span> Duyệt
                             </button>
                             <button 
                               className="admin-action-btn reject" 
@@ -170,47 +168,29 @@ function AdminProductsPage() {
                               disabled={isProcessing}
                               onClick={() => setRejectingProductId(p.productId)}
                             >
-                              <span className="material-symbols-outlined icon-18">cancel</span>
+                              <span className="material-symbols-outlined icon-18">cancel</span> Từ chối
                             </button>
                           </>
                         )}
                         {p.status === 'ACTIVE' && (
-                          <>
-                            <button 
-                              className="admin-action-btn icon-primary" 
-                              title="Xem chi tiết" 
-                              onClick={() => setSelectedProduct(p)}
-                            >
-                              <span className="material-symbols-outlined icon-18">visibility</span>
-                            </button>
-                            <button 
-                              className="admin-action-btn reject" 
-                              title="Khóa/Từ chối" 
-                              disabled={isProcessing}
-                              onClick={() => setRejectingProductId(p.productId)}
-                            >
-                              <span className="material-symbols-outlined icon-18">block</span>
-                            </button>
-                          </>
+                          <button 
+                            className="admin-action-btn reject" 
+                            title="Khóa/Từ chối" 
+                            disabled={isProcessing}
+                            onClick={() => setRejectingProductId(p.productId)}
+                          >
+                            <span className="material-symbols-outlined icon-18">block</span> Khóa
+                          </button>
                         )}
                         {p.status === 'REJECTED' && (
-                          <>
-                            <button 
-                              className="admin-action-btn icon-primary" 
-                              title="Xem chi tiết" 
-                              onClick={() => setSelectedProduct(p)}
-                            >
-                              <span className="material-symbols-outlined icon-18">visibility</span>
-                            </button>
-                            <button 
-                              className="admin-action-btn approve" 
-                              title="Duyệt lại" 
-                              disabled={isProcessing}
-                              onClick={() => handleApprove(p.productId)}
-                            >
-                              <span className="material-symbols-outlined icon-18">restore</span>
-                            </button>
-                          </>
+                          <button 
+                            className="admin-action-btn approve" 
+                            title="Duyệt lại" 
+                            disabled={isProcessing}
+                            onClick={() => handleApprove(p.productId)}
+                          >
+                            <span className="material-symbols-outlined icon-18">restore</span> Duyệt lại
+                          </button>
                         )}
                       </div>
                     </td>

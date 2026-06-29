@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --font-text: 'Outfit', sans-serif;
+  --font-text: 'Inter', sans-serif;
   --font-number: 'Inter', sans-serif;
   --font-sans: var(--font-text); /* backward compatibility */
   --bg-app: #f8fafc;
@@ -488,6 +488,11 @@ tr:last-child td {
   background-color: #f1f5f9;
   border-radius: 8px;
   border: none;
+}
+.navbar-search input:focus, .admin-search-input:focus {
+  box-shadow: none !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
 }
 .navbar-search .search-icon {
   position: absolute;
