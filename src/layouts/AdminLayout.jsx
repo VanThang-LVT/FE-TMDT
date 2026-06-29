@@ -137,6 +137,10 @@ const AdminLayout = ({ children }) => {
             <span className="material-symbols-outlined">percent</span>
             {!isSidebarCollapsed && <span>Cấu hình Hoa hồng</span>}
           </NavLink>
+          <NavLink to="/admin/email-logs" className={({isActive}) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Lịch sử Gửi Email">
+            <span className="material-symbols-outlined">mail</span>
+            {!isSidebarCollapsed && <span>Lịch sử Gửi Email</span>}
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">

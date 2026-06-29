@@ -7,6 +7,7 @@ import AdminCategoryPage from '../pages/admin/AdminCategoryPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage';
 import AdminBannerPage from '../pages/admin/AdminBannerPage';
 import AdminCommissionPage from '../pages/admin/AdminCommissionPage';
+import AdminEmailLogPage from '../pages/admin/AdminEmailLogPage';
 import ProfilePage from '../pages/customer/ProfilePage';
 import ChangePasswordPage from '../pages/customer/ChangePasswordPage';
 import OrdersPage from '../pages/customer/OrdersPage';
@@ -50,6 +51,7 @@ function AppRoutes() {
       <Route path="/admin/products" element={<AdminProductsPage />} />
       <Route path="/admin/banners" element={<AdminBannerPage />} />
       <Route path="/admin/commissions" element={<AdminCommissionPage />} />
+      <Route path="/admin/email-logs" element={<AdminEmailLogPage />} />
 
       {/* Seller Routes */}
       <Route path="/seller" element={<SellerPage />} />

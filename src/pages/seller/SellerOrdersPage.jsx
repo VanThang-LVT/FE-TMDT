@@ -15,7 +15,6 @@ function SellerOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [confirmModalData, setConfirmModalData] = useState({ isOpen: false, orderId: null, newStatus: null });
 
-  // Pagination & Filter state
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
@@ -25,11 +24,9 @@ function SellerOrdersPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // Cancel Reason state
   const [cancelModalData, setCancelModalData] = useState({ isOpen: false, orderId: null });
   const [cancelReason, setCancelReason] = useState('');
-  
-  // Order counts
+
   const [orderCounts, setOrderCounts] = useState({});
 
   useEffect(() => {
@@ -65,7 +62,6 @@ function SellerOrdersPage() {
       setTotalPages(pageData.totalPages || 1);
       setTotalElements(pageData.totalElements || 0);
 
-      // Fetch global counts
       const countsData = await getOrderCountsApi(token);
       setOrderCounts(countsData || {});
     } catch (err) {
@@ -136,16 +132,13 @@ function SellerOrdersPage() {
     if (!shopOrder.statusHistories || shopOrder.statusHistories.length === 0) {
       return [{ status: shopOrder.status, time: shopOrder.createdAt, user: 'Hệ thống' }];
     }
-    
-    // Sort ascending by created_at time
+
     const sortedHistories = [...shopOrder.statusHistories].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    
-    // Initial state
+
     const timeline = [
       { status: sortedHistories[0].oldStatus, time: shopOrder.createdAt, user: 'Hệ thống' }
     ];
-    
-    // All transition new states
+
     sortedHistories.forEach(history => {
       timeline.push({ status: history.newStatus, time: history.createdAt, user: history.updatedByFullName });
     });
@@ -216,7 +209,6 @@ function SellerOrdersPage() {
     );
   };
 
-  // Filtered by backend now
 
   return (
     <SellerLayout>
@@ -493,8 +485,6 @@ function SellerOrdersPage() {
                 ))}
               </div>
 
-              {/* Khối tổng kết tài chính */}
-              {/* Khối tổng kết tài chính */}
               <div className="order-detail-financial-block">
                 <div className="order-detail-financial-content">
                   <div className="order-detail-financial-row">
