@@ -7,59 +7,72 @@ export const useAdminProducts = (token) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const [keyword, setKeyword] = useState('');
+  const [status, setStatus] = useState('PENDING'); 
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [pageSize] = useState(10);
 
   const fetchProducts = useCallback(async () => {
+    if (!token) return;
     try {
       setLoading(true);
-      const data = await getAdminProductsApi(token);
-      setProducts(data);
+      setError('');
+      const data = await getAdminProductsApi(keyword, status, page, pageSize, token);
+      setProducts(data.content || []);
+      setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, keyword, status, page, pageSize]);
 
   useEffect(() => {
-    if (token) {
-      fetchProducts();
-    }
-  }, [token, fetchProducts]);
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleApprove = useCallback(async (productId) => {
     try {
       setIsProcessing(true);
       setError('');
-      const updatedProduct = await approveProductApi(productId, token);
-      setProducts(prev => prev.map(p => p.productId === productId ? updatedProduct : p));
+      await approveProductApi(productId, token);
       setSuccess('Đã duyệt sản phẩm thành công!');
       setTimeout(() => setSuccess(''), 3000);
+      fetchProducts(); // Refresh current page list
     } catch (err) {
       setError(err.message);
       setTimeout(() => setError(''), 3000);
     } finally {
       setIsProcessing(false);
     }
-  }, [token]);
+  }, [token, fetchProducts]);
 
   const handleReject = useCallback(async (productId, reason = '') => {
     try {
       setIsProcessing(true);
       setError('');
-      const updatedProduct = await rejectProductApi(productId, token, reason);
-      setProducts(prev => prev.map(p => p.productId === productId ? updatedProduct : p));
+      await rejectProductApi(productId, token, reason);
       setSuccess('Đã từ chối sản phẩm!');
       setTimeout(() => setSuccess(''), 3000);
+      fetchProducts();
     } catch (err) {
       setError(err.message);
       setTimeout(() => setError(''), 3000);
     } finally {
       setIsProcessing(false);
     }
-  }, [token]);
+  }, [token, fetchProducts]);
 
   return {
     products, loading, error, success, isProcessing,
+    keyword, setKeyword,
+    status, setStatus,
+    page, setPage,
+    totalPages, totalElements, pageSize,
     fetchProducts, handleApprove, handleReject
   };
 };

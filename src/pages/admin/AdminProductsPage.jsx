@@ -11,12 +11,17 @@ import './AdminPage.css';
 function AdminProductsPage() {
   const { user, token, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { products, loading, error, success, isProcessing, handleApprove, handleReject } = useAdminProducts(token);
+  const {
+    products, loading, error, success, isProcessing,
+    keyword, setKeyword,
+    status, setStatus,
+    page, setPage,
+    totalPages, totalElements, pageSize,
+    handleApprove, handleReject
+  } = useAdminProducts(token);
 
-  const [activeTab, setActiveTab] = useState('PENDING'); // PENDING, ACTIVE, REJECTED
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [rejectingProductId, setRejectingProductId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (!authLoading) {
@@ -27,27 +32,24 @@ function AdminProductsPage() {
     }
   }, [user, authLoading, isAdmin, navigate]);
 
-  if (authLoading || loading) {
+  if (authLoading || !user || !isAdmin()) {
     return (
-      <AdminLayout>
-        <div style={{ padding: '50px', textAlign: 'center' }}>Đang tải dữ liệu...</div>
-      </AdminLayout>
+      <div style={{ padding: '50px', textAlign: 'center', color: '#181c20' }}>
+        Đang xác thực quyền Admin...
+      </div>
     );
   }
 
-  const filteredProducts = products.filter(p => {
-    const matchStatus = p.status === activeTab;
-    const matchSearch = p.productName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                        (p.shopName && p.shopName.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchStatus && matchSearch;
-  });
-
-  const renderStatusBadge = (status) => {
-    switch (status) {
-      case 'PENDING': return <span className="admin-status-badge" style={{ whiteSpace: 'nowrap' }}>Chờ duyệt</span>;
-      case 'ACTIVE': return <span className="admin-status-badge success" style={{ whiteSpace: 'nowrap' }}>Đang bán</span>;
-      case 'REJECTED': return <span className="admin-status-badge inactive" style={{ whiteSpace: 'nowrap' }}>Bị từ chối</span>;
-      default: return <span className="admin-status-badge" style={{ whiteSpace: 'nowrap' }}>{status}</span>;
+  const renderStatusBadge = (statusStr) => {
+    switch (statusStr) {
+      case 'PENDING':
+        return <span className="admin-status-badge pending">Chờ duyệt</span>;
+      case 'ACTIVE':
+        return <span className="admin-status-badge">Đã duyệt</span>;
+      case 'REJECTED':
+        return <span className="admin-status-badge inactive">Từ chối</span>;
+      default:
+        return <span className="admin-status-badge">{statusStr}</span>;
     }
   };
 
@@ -59,13 +61,13 @@ function AdminProductsPage() {
           <p className="admin-page-desc">Phê duyệt hoặc từ chối các sản phẩm do người bán đăng lên.</p>
         </div>
         <div className="admin-header-actions">
-          <div className="admin-search admin-search-wrapper">
+          <div className="admin-search admin-search-wrapper" style={{ width: '320px' }}>
             <span className="material-symbols-outlined admin-search-icon">search</span>
             <input 
               type="text" 
               placeholder="Tìm kiếm sản phẩm, gian hàng..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={keyword}
+              onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
             />
           </div>
         </div>
@@ -76,25 +78,24 @@ function AdminProductsPage() {
 
       <div className="admin-tabs admin-tabs-container">
         <button 
-          className={`btn ${activeTab === 'PENDING' ? 'btn-primary' : 'btn-outline'}`}
-          onClick={() => setActiveTab('PENDING')}
+          className={`btn ${status === 'PENDING' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => { setStatus('PENDING'); setPage(0); }}
         >
-          Chờ duyệt ({products.filter(p => p.status === 'PENDING').length})
+          Chờ duyệt {status === 'PENDING' ? `(${totalElements})` : ''}
         </button>
         <button 
-          className={`btn ${activeTab === 'ACTIVE' ? 'btn-primary' : 'btn-outline'}`}
-          onClick={() => setActiveTab('ACTIVE')}
+          className={`btn ${status === 'ACTIVE' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => { setStatus('ACTIVE'); setPage(0); }}
         >
-          Đã duyệt ({products.filter(p => p.status === 'ACTIVE').length})
+          Đã duyệt {status === 'ACTIVE' ? `(${totalElements})` : ''}
         </button>
         <button 
-          className={`btn ${activeTab === 'REJECTED' ? 'btn-primary' : 'btn-outline'}`}
-          onClick={() => setActiveTab('REJECTED')}
+          className={`btn ${status === 'REJECTED' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => { setStatus('REJECTED'); setPage(0); }}
         >
-          Đã từ chối ({products.filter(p => p.status === 'REJECTED').length})
+          Đã từ chối {status === 'REJECTED' ? `(${totalElements})` : ''}
         </button>
       </div>
-
 
       <div className="admin-table-card">
         <div className="admin-table-container">
@@ -110,12 +111,20 @@ function AdminProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="admin-empty-state">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <div className="spinner"></div> Đang tải dữ liệu sản phẩm...
+                    </div>
+                  </td>
+                </tr>
+              ) : products.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="admin-empty-state">Không có sản phẩm nào trong mục này.</td>
                 </tr>
               ) : (
-                filteredProducts.map(p => (
+                products.map(p => (
                   <tr key={p.productId}>
                     <td>
                       <div className="product-list-item">
@@ -200,6 +209,42 @@ function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        {!loading && totalPages > 1 && (
+          <div className="admin-pagination-container">
+            <span className="admin-pagination-info">
+              Hiển thị <strong>{page * pageSize + 1}</strong> - <strong>{Math.min((page + 1) * pageSize, totalElements)}</strong> trong số <strong>{totalElements}</strong> sản phẩm
+            </span>
+            <div className="admin-pagination-buttons">
+              <button
+                className="admin-pagination-btn"
+                disabled={page === 0}
+                onClick={() => setPage(page - 1)}
+              >
+                Trước
+              </button>
+              
+              {[...Array(totalPages).keys()].map((pNum) => (
+                <button
+                  key={pNum}
+                  className={`admin-pagination-btn ${pNum === page ? 'active' : ''}`}
+                  onClick={() => setPage(pNum)}
+                >
+                  {pNum + 1}
+                </button>
+              ))}
+
+              <button
+                className="admin-pagination-btn"
+                disabled={page === totalPages - 1}
+                onClick={() => setPage(page + 1)}
+              >
+                Sau
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {selectedProduct && (
