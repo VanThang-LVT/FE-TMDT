@@ -21,5 +21,5 @@ export const getEmailLogsApi = async (token, params = {}) => {
   if (!response.ok) {
     throw new Error(data.message || 'Lỗi khi tải danh sách email log!');
   }
-  return data;
+  return data.data;
 };
