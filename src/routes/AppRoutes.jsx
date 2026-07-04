@@ -6,6 +6,7 @@ import AdminCategoryPage from '../pages/admin/AdminCategoryPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage';
 import AdminBannerPage from '../pages/admin/AdminBannerPage';
 import AdminCommissionPage from '../pages/admin/AdminCommissionPage';
+import AdminPaymentPage from '../pages/admin/AdminPaymentPage';
 import ProfilePage from '../pages/customer/ProfilePage';
 import OrdersPage from '../pages/customer/OrdersPage';
 import ShopRegistrationPage from '../pages/customer/ShopRegistrationPage';
@@ -45,6 +46,7 @@ function AppRoutes() {
       <Route path="/admin/products" element={<AdminProductsPage />} />
       <Route path="/admin/banners" element={<AdminBannerPage />} />
       <Route path="/admin/commissions" element={<AdminCommissionPage />} />
+      <Route path="/admin/payments" element={<AdminPaymentPage />} />
 
       {/* Seller Routes */}
       <Route path="/seller" element={<SellerPage />} />

@@ -137,6 +137,10 @@ const AdminLayout = ({ children }) => {
             <span className="material-symbols-outlined">percent</span>
             {!isSidebarCollapsed && <span>Cấu hình Hoa hồng</span>}
           </NavLink>
+          <NavLink to="/admin/payments" className={({isActive}) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Nhật ký thanh toán">
+            <span className="material-symbols-outlined">receipt_long</span>
+            {!isSidebarCollapsed && <span>Nhật ký thanh toán</span>}
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">

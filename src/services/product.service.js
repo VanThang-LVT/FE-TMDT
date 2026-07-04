@@ -48,14 +48,19 @@ export const updateProductApi = async (productId, formData, token) => {
   return response.json();
 };
 
-export const getAdminProductsApi = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/admin/products`, {
+export const getAdminProductsApi = async (keyword = '', status = '', page = 0, size = 10, token) => {
+  let url = `${API_BASE_URL}/admin/products?page=${page}&size=${size}`;
+  if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+  if (status) url += `&status=${status}`;
+
+  const response = await fetch(url, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
   });
   if (!response.ok) throw new Error('Không thể tải danh sách sản phẩm');
-  return response.json();
+  const data = await response.json();
+  return data.data;
 };
 
 export const approveProductApi = async (productId, token) => {

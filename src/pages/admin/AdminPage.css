@@ -961,3 +961,124 @@
 .admin-modal-close:hover {
   color: #333;
 }
+
+/* =======================
+   ADMIN PAYMENT LOGS STYLES
+======================== */
+.admin-status-badge.success {
+  background-color: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+.admin-status-badge.success::before {
+  background-color: #10b981;
+}
+
+.admin-status-badge.failed {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+.admin-status-badge.failed::before {
+  background-color: #ef4444;
+}
+
+.admin-status-badge.pending {
+  background-color: #fef9c3;
+  color: #a16207;
+  border-color: #fef08a;
+}
+.admin-status-badge.pending::before {
+  background-color: #eab308;
+}
+
+.admin-table-col-right {
+  text-align: right !important;
+}
+
+.admin-search-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-select-filter {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  outline: none;
+  background-color: white;
+  color: #334155;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.admin-select-filter:focus {
+  border-color: var(--primary-color);
+}
+
+.admin-pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.admin-pagination-info {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.admin-pagination-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-pagination-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: white;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-pagination-btn:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.admin-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-pagination-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Specific filters size for Admin Payment Page header */
+.admin-payment-search {
+  width: 320px;
+  height: 42px;
+  background-color: #ffffff;
+}
+
+.admin-payment-select {
+  height: 42px;
+}
+
+.admin-payment-btn-refresh {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
