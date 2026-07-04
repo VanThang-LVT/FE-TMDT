@@ -37,7 +37,7 @@ export const useSellerProducts = (token) => {
     brand: '',
     keywords: ''
   });
-  const [images, setImages] = useState([]); // Array of { file, previewUrl }
+  const [images, setImages] = useState([]);
   const [mainImageIndex, setMainImageIndex] = useState(0);
 
   const [categoryAttributes, setCategoryAttributes] = useState([]);
@@ -64,7 +64,11 @@ export const useSellerProducts = (token) => {
 
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let finalValue = value;
+    if (name === 'price') {
+      finalValue = value.replace(/\D/g, '');
+    }
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
 
 
     if (name === 'categoryId') {
@@ -237,7 +241,7 @@ export const useSellerProducts = (token) => {
       setProducts(prev => prev.filter(p => p.productId !== productId));
       setSuccess('Xóa sản phẩm thành công!');
       setTimeout(() =>
-          setSuccess(''), 3000);
+        setSuccess(''), 3000);
     } catch (err) {
       setError(err.message);
       setTimeout(() => setError(''), 3000);
@@ -247,7 +251,6 @@ export const useSellerProducts = (token) => {
 
 
   const handleEditClick = useCallback((product) => {
-    // DỌN PHẦN THÔNG TIN CƠ BẢN
     setEditingProductId(product.productId);
     setFormData({
       categoryId: product.categoryId || '',

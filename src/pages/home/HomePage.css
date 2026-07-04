@@ -309,7 +309,7 @@
   flex: 1;
 }
 
-.product-title {
+.product-card-title {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -319,31 +319,38 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.4;
+  min-height: 40px;
 }
 
 .product-price {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--danger-color);
   /* Usually red for price in Vietnam */
   margin-bottom: 12px;
-  margin-top: auto;
+  margin-top: 4px;
 }
 
 .product-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   font-size: 12px;
   color: var(--text-muted);
   padding-top: 12px;
   border-top: 1px solid var(--border-color);
+  margin-top: auto;
 }
 
 .product-shop {
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 65%;
 }
 
 .icon-small {

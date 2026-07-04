@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { getMyNotificationsApi, getUnreadCountApi, markAsReadApi, markAllAsReadApi } from '../services/notification.service';
 import logoImg from '../assets/logo.png';
+import PromptModal from './modals/PromptModal';
 
 function Navbar({ brandName = 'EoViTi' }) {
   const { user, token, logout, isAdmin, isSeller } = useAuth();
@@ -16,6 +17,8 @@ function Navbar({ brandName = 'EoViTi' }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCart, setShowCart] = useState(false);
+  const [showPromptModal, setShowPromptModal] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
 
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -89,29 +92,64 @@ function Navbar({ brandName = 'EoViTi' }) {
     navigate('/login');
   };
 
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && searchInput.trim()) {
+      navigate(`/?keyword=${encodeURIComponent(searchInput.trim())}`);
+    }
+  };
+
+  const handlePromptSearch = (prompt) => {
+    setShowPromptModal(false);
+    if (prompt.trim()) {
+      navigate(`/?prompt=${encodeURIComponent(prompt.trim())}`);
+    }
+  };
+
   return (
-    <header className="navbar-container">
+    <>
+      <header className="navbar-container">
       <div className="navbar-content">
 
         {/* Brand Logo */}
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Link to="/" className="navbar-logo-link">
           <img
             src={logoImg}
             alt="EoViTi Logo"
-            style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)' }}
+            className="navbar-logo-img"
           />
-          <span className="brand" style={{ margin: 0 }}>
+          <span className="brand">
             {brandName}
           </span>
         </Link>
 
         {/* Search Bar (Desktop) */}
-        <div className="navbar-search">
-          <input
-            placeholder="Tìm kiếm sản phẩm, thương hiệu..."
-            type="text"
-          />
-          <span className="material-symbols-outlined search-icon">search</span>
+        <div className="navbar-search navbar-search-wrapper">
+          <div className="navbar-search-input-container">
+            <input
+              placeholder="Tìm kiếm sản phẩm, thương hiệu..."
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearch}
+            />
+            <span 
+              className="material-symbols-outlined search-icon navbar-search-icon-clickable" 
+              onClick={() => {
+                if (searchInput.trim()) {
+                  navigate(`/?keyword=${encodeURIComponent(searchInput.trim())}`);
+                }
+              }}
+            >
+              search
+            </span>
+          </div>
+          <button 
+            onClick={() => setShowPromptModal(true)}
+            className="icon-btn navbar-ai-btn" 
+            title="Tìm kiếm thông minh bằng AI"
+          >
+            <span className="material-symbols-outlined">auto_awesome</span>
+          </button>
         </div>
 
         {/* Navigation Links & Actions */}
@@ -119,12 +157,12 @@ function Navbar({ brandName = 'EoViTi' }) {
           {user ? (
             <>
               {/* Notification Bell */}
-              <div className="relative" ref={notifRef} style={{ position: 'relative' }}>
+              <div className="relative" ref={notifRef}>
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
                   className="icon-btn"
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>notifications</span>
+                  <span className="material-symbols-outlined navbar-icon-28">notifications</span>
                   {unreadCount > 0 && (
                     <span className="badge-count">
                       {unreadCount > 9 ? '9+' : unreadCount}
@@ -134,46 +172,38 @@ function Navbar({ brandName = 'EoViTi' }) {
 
                 {/* Notification Dropdown */}
                 {showNotifications && (
-                  <div className="user-dropdown-menu" style={{ width: '320px' }}>
-                    <div className="user-dropdown-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="user-dropdown-menu notif-menu">
+                    <div className="user-dropdown-header flex-header">
                       <p className="user-name">Thông báo</p>
                       {unreadCount > 0 && (
-                        <button onClick={handleMarkAllAsRead} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '12px', cursor: 'pointer' }}>
+                        <button onClick={handleMarkAllAsRead} className="mark-all-read-btn">
                           Đánh dấu đã đọc
                         </button>
                       )}
                     </div>
-                    <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+                    <div className="dropdown-scroll-area">
                       {notifications.length === 0 ? (
-                        <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <div className="dropdown-empty-state">
                           <p>Không có thông báo nào</p>
                         </div>
                       ) : (
                         notifications.map(notif => (
                           <div
                             key={notif.notificationId}
-                            style={{
-                              padding: '12px 16px',
-                              borderBottom: '1px solid var(--border-color)',
-                              display: 'flex',
-                              gap: '12px',
-                              cursor: 'pointer',
-                              background: notif.isRead ? 'transparent' : '#f8fafc',
-                              opacity: notif.isRead ? 0.7 : 1
-                            }}
+                            className={`notif-item ${notif.isRead ? 'read' : 'unread'}`}
                             onClick={(e) => handleNotificationClick(notif, e)}
                           >
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-glow)', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div className="notif-icon-wrapper">
                               <span className="material-symbols-outlined">info</span>
                             </div>
-                            <div style={{ flex: 1 }}>
-                              <h5 style={{ margin: 0, fontSize: '14px', color: notif.isRead ? 'var(--text-secondary)' : 'var(--text-primary)' }}>{notif.title}</h5>
-                              <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>{notif.content}</p>
-                              <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginTop: '6px' }}>
+                            <div className="notif-content-wrapper">
+                              <h5 className={`notif-title ${notif.isRead ? 'read' : 'unread'}`}>{notif.title}</h5>
+                              <p className="notif-body">{notif.content}</p>
+                              <span className="notif-time">
                                 {new Date(notif.createdAt).toLocaleString('vi-VN')}
                               </span>
                             </div>
-                            {!notif.isRead && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary-color)', marginTop: '6px', flexShrink: 0 }}></div>}
+                            {!notif.isRead && <div className="notif-unread-dot"></div>}
                           </div>
                         ))
                       )}
@@ -183,12 +213,12 @@ function Navbar({ brandName = 'EoViTi' }) {
               </div>
 
               {/* Shopping Cart Dropdown */}
-              <div className="relative" ref={cartRef} style={{ position: 'relative' }}>
+              <div className="relative" ref={cartRef}>
                 <button
                   onClick={() => setShowCart(!showCart)}
                   className="icon-btn"
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>shopping_cart</span>
+                  <span className="material-symbols-outlined navbar-icon-28">shopping_cart</span>
                   {cart?.items?.length > 0 && (
                     <span className="badge-count">
                       {cart.items.length > 9 ? '9+' : cart.items.length}
@@ -197,49 +227,42 @@ function Navbar({ brandName = 'EoViTi' }) {
                 </button>
 
                 {showCart && (
-                  <div className="user-dropdown-menu" style={{ width: '380px' }}>
-                    <div className="user-dropdown-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="user-dropdown-menu cart-menu">
+                    <div className="user-dropdown-header flex-header">
                       <p className="user-name">Giỏ hàng</p>
                     </div>
                     
-                    <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+                    <div className="dropdown-scroll-area">
                       {!cart || !cart.items || cart.items.length === 0 ? (
-                        <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <div className="dropdown-empty-state">
                           <p>Giỏ hàng trống</p>
                         </div>
                       ) : (
                         cart.items.map(item => (
                           <div
                             key={item.cartItemId}
-                            style={{
-                              padding: '12px 16px',
-                              borderBottom: '1px solid var(--border-color)',
-                              display: 'flex',
-                              gap: '12px',
-                              alignItems: 'center',
-                              cursor: 'pointer'
-                            }}
+                            className="cart-item"
                           >
 
                             <img 
                               src={item.imageUrl ? `http://localhost:8080${item.imageUrl}` : 'https://via.placeholder.com/50'} 
                               alt={item.productName} 
-                              style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }}
+                              className="cart-item-img"
                             />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <h5 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div className="cart-item-info">
+                              <h5 className="cart-item-name">
                                 {item.productName}
                               </h5>
                               {item.attributes && item.attributes.length > 0 && (
-                                <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                <p className="cart-item-attrs">
                                   {item.attributes.map(a => a.value).join(', ')}
                                 </p>
                               )}
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                                <span style={{ fontSize: '13.5px', fontWeight: '600', color: '#e53e3e' }}>
+                              <div className="cart-item-meta">
+                                <span className="cart-item-price">
                                   {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
                                 </span>
-                                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>x{item.quantity}</span>
+                                <span className="cart-item-qty">x{item.quantity}</span>
                               </div>
                             </div>
                           </div>
@@ -248,22 +271,13 @@ function Navbar({ brandName = 'EoViTi' }) {
                     </div>
                     
                     {cart && cart.items && cart.items.length > 0 && (
-                      <div style={{ padding: '12px 16px', background: '#f8fafc', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      <div className="cart-dropdown-footer">
+                        <span className="cart-summary-text">
                           {cart.items.length} mặt hàng
                         </span>
                         <button 
                           onClick={() => { setShowCart(false); navigate('/cart'); }}
-                          style={{
-                            padding: '8px 16px',
-                            background: '#2563eb',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            cursor: 'pointer'
-                          }}
+                          className="cart-view-details-btn"
                         >
                           Xem Chi Tiết
                         </button>
@@ -274,12 +288,12 @@ function Navbar({ brandName = 'EoViTi' }) {
               </div>
 
               {/* User Profile */}
-              <div className="relative" ref={userMenuRef} style={{ position: 'relative' }}>
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="icon-btn"
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>account_circle</span>
+                  <span className="material-symbols-outlined navbar-icon-32">account_circle</span>
                 </button>
 
                 {/* User Dropdown */}
@@ -289,18 +303,18 @@ function Navbar({ brandName = 'EoViTi' }) {
                       <p className="user-name">{user.fullName}</p>
                       <p className="user-email">{user.email}</p>
 
-                      <div style={{ marginTop: '8px' }}>
+                      <div className="user-badge-container">
                         {isAdmin() ? (
                           <span className="badge badge-admin">Quản trị viên</span>
                         ) : isSeller() ? (
-                          <span className="badge" style={{ background: 'var(--success-glow)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>Người bán</span>
+                          <span className="badge badge-seller">Người bán</span>
                         ) : (
                           <span className="badge">Khách hàng</span>
                         )}
                       </div>
                     </div>
 
-                    <div style={{ padding: '8px 0' }}>
+                    <div className="dropdown-items-list">
                       <Link to="/profile" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
                         <span className="material-symbols-outlined">person</span>
                         Thông tin cá nhân
@@ -336,7 +350,7 @@ function Navbar({ brandName = 'EoViTi' }) {
                         </Link>
                       )}
 
-                      <div style={{ borderTop: '1px solid var(--border-color)', margin: '4px 0' }}></div>
+                      <div className="user-dropdown-divider"></div>
 
                       <button onClick={handleLogoutClick} className="dropdown-item danger">
                         <span className="material-symbols-outlined">logout</span>
@@ -348,7 +362,7 @@ function Navbar({ brandName = 'EoViTi' }) {
               </div>
             </>
           ) : (
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="auth-buttons-container">
               <button
                 onClick={() => navigate('/login')}
                 className="btn-outline"
@@ -366,6 +380,18 @@ function Navbar({ brandName = 'EoViTi' }) {
         </nav>
       </div>
     </header>
+      
+      <PromptModal
+        isOpen={showPromptModal}
+        title="Tìm kiếm thông minh (AI)"
+        label="Bạn đang tìm kiếm gì?"
+        placeholder="Ví dụ: Tôi muốn tìm một chiếc áo sơ mi nam màu trắng để đi dự tiệc, chất liệu mát mẻ..."
+        onConfirm={handlePromptSearch}
+        onCancel={() => setShowPromptModal(false)}
+        confirmText="Tìm kiếm"
+        type="primary"
+      />
+    </>
   );
 }
 

@@ -8,6 +8,13 @@ import ConfirmModal from '../../components/modals/ConfirmModal';
 import './SellerPage.css';
 import { API_BASE_URL } from '../../utils/constants';
 
+const formatDisplayPrice = (val) => {
+  if (val === undefined || val === null || val === '') return '';
+  const stringVal = val.toString().replace(/\D/g, '');
+  if (!stringVal) return '';
+  return new Intl.NumberFormat('vi-VN').format(parseInt(stringVal, 10));
+};
+
 function SellerProductsPage() {
   const { user, token, isSeller, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -222,7 +229,19 @@ function SellerProductsPage() {
                               </div>
                             </td>
                             <td>
-                              <input type="number" value={variant.price} onChange={(e) => { const newV = [...variants]; newV[index].price = e.target.value; setVariants(newV); }} className="seller-products-variants-input" placeholder="Giá" min="0" required />
+                              <input
+                                type="text"
+                                value={formatDisplayPrice(variant.price)}
+                                onChange={(e) => {
+                                  const rawValue = e.target.value.replace(/\D/g, '');
+                                  const newV = [...variants];
+                                  newV[index].price = rawValue;
+                                  setVariants(newV);
+                                }}
+                                className="seller-products-variants-input"
+                                placeholder="Giá"
+                                required
+                              />
                             </td>
                             <td>
                               <input type="number" value={variant.stockQuantity} onChange={(e) => { const newV = [...variants]; newV[index].stockQuantity = e.target.value; setVariants(newV); }} className="seller-products-variants-input" placeholder="Kho" min="0" required />
@@ -253,12 +272,12 @@ function SellerProductsPage() {
                 <div className="form-group seller-products-form-group">
                   <label>Giá bán (VNĐ) (*)</label>
                   <input
-                    type="number"
+                    type="text"
                     name="price"
-                    value={formData.price}
+                    value={formatDisplayPrice(formData.price)}
                     onChange={handleInputChange}
                     required
-                    min="0"
+                    placeholder="Nhập giá bán..."
                   />
                 </div>
 

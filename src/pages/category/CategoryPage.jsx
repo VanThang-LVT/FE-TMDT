@@ -15,12 +15,18 @@ function CategoryPage() {
   const [error, setError] = useState(null);
   const [expandedCats, setExpandedCats] = useState(new Set());
 
+  const [minPriceInput, setMinPriceInput] = useState('');
+  const [maxPriceInput, setMaxPriceInput] = useState('');
+  const [minPrice, setMinPrice] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);
+  const [sortBy, setSortBy] = useState('popular');
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const [productsData, categoriesData] = await Promise.all([
-          getPublicProductsApi('', categoryId),
+          getPublicProductsApi('', '', categoryId),
           getAllCategoriesApi()
         ]);
         setProducts(productsData);
@@ -54,7 +60,7 @@ function CategoryPage() {
   }
 
   const toggleExpand = (e, catId) => {
-    e.stopPropagation(); // prevent navigation
+    e.stopPropagation(); 
     setExpandedCats(prev => {
       const next = new Set(prev);
       if (next.has(catId)) {
@@ -66,6 +72,37 @@ function CategoryPage() {
     });
   };
 
+  const handleApplyFilter = () => {
+    setMinPrice(minPriceInput ? parseInt(minPriceInput) : null);
+    setMaxPrice(maxPriceInput ? parseInt(maxPriceInput) : null);
+  };
+
+  let displayedProducts = [...products];
+
+  if (minPrice !== null) {
+    displayedProducts = displayedProducts.filter(p => p.price >= minPrice);
+  }
+  if (maxPrice !== null) {
+    displayedProducts = displayedProducts.filter(p => p.price <= maxPrice);
+  }
+
+  switch (sortBy) {
+    case 'price-asc':
+      displayedProducts.sort((a, b) => a.price - b.price);
+      break;
+    case 'price-desc':
+      displayedProducts.sort((a, b) => b.price - a.price);
+      break;
+    case 'newest':
+      displayedProducts.sort((a, b) => b.productId - a.productId);
+      break;
+    case 'best-selling':
+      displayedProducts.sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0));
+      break;
+    default:
+      break;
+  }
+
   const renderCategoryTree = (parentId, depth) => {
     const children = categories.filter(c => c.parentId === parentId);
     if (children.length === 0) return null;
@@ -76,16 +113,16 @@ function CategoryPage() {
           const isCurrent = cat.categoryId === parseInt(categoryId);
           const isExpanded = expandedCats.has(cat.categoryId);
           const hasChildren = categories.some(c => c.parentId === cat.categoryId);
-          
+
           return (
             <li key={cat.categoryId} className="sidebar-tree-item">
-              <div 
+              <div
                 className={`sidebar-tree-label ${isCurrent ? 'active' : ''}`}
                 onClick={() => navigate(`/category/${cat.categoryId}`)}
                 style={{ paddingLeft: `${depth * 12}px` }}
               >
                 {hasChildren ? (
-                  <span 
+                  <span
                     className="material-symbols-outlined expand-icon"
                     onClick={(e) => toggleExpand(e, cat.categoryId)}
                     style={{ cursor: 'pointer' }}
@@ -93,7 +130,7 @@ function CategoryPage() {
                     {isExpanded ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}
                   </span>
                 ) : (
-                  <span className="material-symbols-outlined expand-icon" style={{opacity: 0}}>keyboard_arrow_right</span>
+                  <span className="material-symbols-outlined expand-icon" style={{ opacity: 0 }}>keyboard_arrow_right</span>
                 )}
                 <span style={{ flex: 1 }}>{cat.categoryName}</span>
               </div>
@@ -112,9 +149,9 @@ function CategoryPage() {
         <div className="breadcrumb">
           <span onClick={() => navigate('/')}>Trang chủ</span>
           {pathNodes.map((node, index) => (
-            <span key={node.categoryId} style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+            <span key={node.categoryId} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="separator">&gt;</span>
-              <span 
+              <span
                 className={index === pathNodes.length - 1 ? 'current' : ''}
                 onClick={() => navigate(`/category/${node.categoryId}`)}
               >
@@ -128,13 +165,13 @@ function CategoryPage() {
           {/* Sidebar */}
           <div className="category-sidebar">
             <h3 className="sidebar-title">
-              <span className="material-symbols-outlined" style={{marginRight: '8px', fontSize: '20px'}}>format_list_bulleted</span>
+              <span className="material-symbols-outlined" style={{ marginRight: '8px', fontSize: '20px' }}>format_list_bulleted</span>
               Danh mục
             </h3>
             <div className="sidebar-tree">
               {rootCategory ? (
                 <>
-                  <div 
+                  <div
                     className={`sidebar-tree-root ${rootCategory.categoryId === parseInt(categoryId) ? 'active' : ''}`}
                     onClick={() => navigate(`/category/${rootCategory.categoryId}`)}
                   >
@@ -151,11 +188,21 @@ function CategoryPage() {
             <div className="filter-group">
               <label>Khoảng giá (₫)</label>
               <div className="price-filter">
-                <input type="number" placeholder="TỪ" />
+                <input 
+                  type="text" 
+                  placeholder="TỪ" 
+                  value={minPriceInput ? Number(minPriceInput).toLocaleString('vi-VN') : ''}
+                  onChange={(e) => setMinPriceInput(e.target.value.replace(/\D/g, ''))}
+                />
                 <span>-</span>
-                <input type="number" placeholder="ĐẾN" />
+                <input 
+                  type="text" 
+                  placeholder="ĐẾN" 
+                  value={maxPriceInput ? Number(maxPriceInput).toLocaleString('vi-VN') : ''}
+                  onChange={(e) => setMaxPriceInput(e.target.value.replace(/\D/g, ''))}
+                />
               </div>
-              <button className="btn-apply-filter">Áp dụng</button>
+              <button className="btn-apply-filter" onClick={handleApplyFilter}>Áp dụng</button>
             </div>
           </div>
 
@@ -167,13 +214,17 @@ function CategoryPage() {
               </h1>
               <div className="category-sort">
                 <span className="sort-label">Sắp xếp theo:</span>
-                <button className="sort-btn active">Phổ biến</button>
-                <button className="sort-btn">Mới nhất</button>
-                <button className="sort-btn">Bán chạy</button>
-                <select className="sort-select">
-                  <option value="">Giá</option>
-                  <option value="asc">Giá: Thấp đến Cao</option>
-                  <option value="desc">Giá: Cao đến Thấp</option>
+                <button className={`sort-btn ${sortBy === 'popular' ? 'active' : ''}`} onClick={() => setSortBy('popular')}>Phổ biến</button>
+                <button className={`sort-btn ${sortBy === 'newest' ? 'active' : ''}`} onClick={() => setSortBy('newest')}>Mới nhất</button>
+                <button className={`sort-btn ${sortBy === 'best-selling' ? 'active' : ''}`} onClick={() => setSortBy('best-selling')}>Bán chạy</button>
+                <select 
+                  className="sort-select" 
+                  value={sortBy.startsWith('price') ? sortBy : ''} 
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="" disabled>Giá</option>
+                  <option value="price-asc">Giá: Thấp đến Cao</option>
+                  <option value="price-desc">Giá: Cao đến Thấp</option>
                 </select>
               </div>
             </div>
@@ -190,9 +241,14 @@ function CategoryPage() {
                 <span className="material-symbols-outlined">inventory_2</span>
                 <p>Không có sản phẩm nào trong danh mục này.</p>
               </div>
+            ) : displayedProducts.length === 0 ? (
+              <div className="category-empty">
+                <span className="material-symbols-outlined">search_off</span>
+                <p>Không tìm thấy sản phẩm phù hợp với bộ lọc.</p>
+              </div>
             ) : (
               <div className="product-grid">
-                {products.map(product => (
+                {displayedProducts.map(product => (
                   <div key={product.productId} className="product-card" onClick={() => navigate(`/product/${product.productId}`)}>
                     <div className="product-image-container">
                       {product.mainImageId ? (
@@ -204,14 +260,14 @@ function CategoryPage() {
                       )}
                     </div>
                     <div className="product-info">
-                      <h3 className="product-title">{product.productName}</h3>
+                      <h3 className="product-card-title">{product.productName}</h3>
                       <div className="product-price font-number">{product.price.toLocaleString('vi-VN')} đ</div>
                       <div className="product-footer">
                         <span className="product-shop">
                           <span className="material-symbols-outlined icon-small">storefront</span>
                           {product.shopName || `Shop #${product.shopId}`}
                         </span>
-                        <span className="product-sales font-number">Đã bán 0</span>
+                        <span className="product-sales font-number">Đã bán {product.salesCount || 0}</span>
                       </div>
                     </div>
                   </div>

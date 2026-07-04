@@ -3,7 +3,7 @@ import Footer from '../components/Footer';
 
 function DashboardLayout({ brandName, children }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '80px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: '113px' }}>
       <Navbar brandName={brandName} />
       
       <main className="dashboard-wrapper" style={{ flex: 1, marginTop: '20px', minHeight: 'calc(100vh - 350px)' }}>

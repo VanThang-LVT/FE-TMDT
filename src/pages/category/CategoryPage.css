@@ -16,6 +16,26 @@
 .category-sidebar {
   width: 250px;
   flex-shrink: 0;
+  position: sticky;
+  top: 113px; /* Khớp đúng bằng chiều cao của Navbar (112px + 1px border) */
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Custom Scrollbar cho toàn bộ Sidebar để đẹp hơn */
+.category-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.category-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.category-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.category-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .sidebar-title {
@@ -124,12 +144,17 @@
 }
 
 .category-header {
-  background: #f8fafc;
+  background: rgba(248, 250, 252, 0.95);
+  backdrop-filter: blur(8px);
   padding: 16px 20px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 113px; /* Khớp đúng bằng chiều cao của Navbar */
+  z-index: 10;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .category-title {

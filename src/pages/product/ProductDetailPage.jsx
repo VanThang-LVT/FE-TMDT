@@ -91,22 +91,30 @@ function ProductDetailPage() {
 
   let displayPrice = product.price.toLocaleString('vi-VN');
   let displayStock = product.stockQuantity;
+  let isInvalidVariant = false;
 
   if (selectedVariant) {
     displayPrice = selectedVariant.price.toLocaleString('vi-VN');
     displayStock = selectedVariant.stockQuantity;
   } else if (product.variants && product.variants.length > 0) {
-    const prices = product.variants.map(v => v.price).filter(p => p != null);
-    if (prices.length > 0) {
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-      if (minPrice !== maxPrice) {
-        displayPrice = `${minPrice.toLocaleString('vi-VN')} - ${maxPrice.toLocaleString('vi-VN')}`;
-      } else {
-        displayPrice = minPrice.toLocaleString('vi-VN');
+    const isFullMatch = Object.keys(availableAttributes).every(key => selectedAttributes[key]);
+    if (isFullMatch) {
+      isInvalidVariant = true;
+      displayPrice = "---";
+      displayStock = 0;
+    } else {
+      const prices = product.variants.map(v => v.price).filter(p => p != null);
+      if (prices.length > 0) {
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        if (minPrice !== maxPrice) {
+          displayPrice = `${minPrice.toLocaleString('vi-VN')} - ${maxPrice.toLocaleString('vi-VN')}`;
+        } else {
+          displayPrice = minPrice.toLocaleString('vi-VN');
+        }
       }
+      displayStock = product.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0);
     }
-    displayStock = product.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0);
   }
 
   const handleAttributeSelect = (key, value) => {
@@ -281,11 +289,13 @@ function ProductDetailPage() {
             <div className="product-quantity-group">
               <span className="quantity-label">Số lượng</span>
               <div className="quantity-selector">
-                <button className="qty-btn" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>-</button>
+                <button className="qty-btn" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1 || isInvalidVariant}>-</button>
                 <input type="number" className="qty-input" value={quantity} readOnly />
-                <button className="qty-btn" onClick={() => handleQuantityChange(1)} disabled={quantity >= displayStock}>+</button>
+                <button className="qty-btn" onClick={() => handleQuantityChange(1)} disabled={quantity >= displayStock || isInvalidVariant}>+</button>
               </div>
-              <span className="stock-info">{displayStock} sản phẩm có sẵn</span>
+              <span className="stock-info">
+                {isInvalidVariant ? <span style={{color: 'red'}}>Phân loại này không tồn tại hoặc đã hết</span> : `${displayStock} sản phẩm có sẵn`}
+              </span>
             </div>
 
             <div className="product-actions" style={{ position: 'relative' }}>
@@ -294,11 +304,11 @@ function ProductDetailPage() {
                   <Alert type={alertConfig.type} message={alertConfig.message} />
                 </div>
               )}
-              <button className="btn-add-cart" onClick={handleAddToCart}>
+              <button className="btn-add-cart" onClick={handleAddToCart} disabled={isInvalidVariant}>
                 <span className="material-symbols-outlined">add_shopping_cart</span>
                 Thêm vào giỏ hàng
               </button>
-              <button className="btn-buy-now" onClick={handleBuyNow}>
+              <button className="btn-buy-now" onClick={handleBuyNow} disabled={isInvalidVariant}>
                 Mua ngay
               </button>
             </div>

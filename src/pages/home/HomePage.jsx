@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { getPublicProductsApi } from '../../services/product.service';
 import { getPublicBannersApi } from '../../services/banner.service';
@@ -8,7 +8,11 @@ import { API_BASE_URL } from '../../utils/constants';
 import './HomePage.css';
 
 function HomePage() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const keyword = searchParams.get('keyword');
+  const prompt = searchParams.get('prompt');
+
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -35,14 +39,20 @@ function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsData, bannersData, categoriesData] = await Promise.all([
-          getPublicProductsApi(),
-          getPublicBannersApi(),
-          getAllCategoriesApi()
-        ]);
-        setProducts(productsData);
-        setBanners(bannersData);
-        setCategories(categoriesData);
+        setLoading(true);
+        if (keyword || prompt) {
+          const productsData = await getPublicProductsApi(keyword || '', prompt || '');
+          setProducts(productsData);
+        } else {
+          const [productsData, bannersData, categoriesData] = await Promise.all([
+            getPublicProductsApi(),
+            getPublicBannersApi(),
+            getAllCategoriesApi()
+          ]);
+          setProducts(productsData);
+          setBanners(bannersData);
+          setCategories(categoriesData);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -50,12 +60,12 @@ function HomePage() {
       }
     };
     fetchData();
-  }, []);
+  }, [keyword, prompt]);
 
   return (
     <DashboardLayout brandName="EoViTi">
       <div className="home-container">
-        {banners.length > 0 && (
+        {!keyword && !prompt && banners.length > 0 && (
           <div className="home-banner-wrapper">
             <div
               className="home-banner-track"
@@ -102,7 +112,7 @@ function HomePage() {
         )}
 
         {/* Categories Section */}
-        {!loading && categories.length > 0 && (
+        {!keyword && !prompt && !loading && categories.length > 0 && (
           <div className="home-categories-section">
             <h2 className="section-title" style={{textAlign: 'center'}}>Danh Mục Thể Loại</h2>
             
@@ -139,7 +149,13 @@ function HomePage() {
           </div>
         )}
 
-        <h2 className="section-title" style={{ marginTop: '40px' }}>Gợi Ý Cho Bạn</h2>
+        {keyword ? (
+          <h2 className="section-title" style={{ marginTop: '20px' }}>Kết Quả Tìm Kiếm Tên/Đặc điểm: "{keyword}"</h2>
+        ) : prompt ? (
+          <h2 className="section-title" style={{ marginTop: '20px' }}>Kết Quả Tìm Kiếm Bằng Trí Tuệ Nhân Tạo (AI) Cho: "{prompt}"</h2>
+        ) : (
+          <h2 className="section-title" style={{ marginTop: '40px' }}>Gợi Ý Cho Bạn</h2>
+        )}
 
         {loading ? (
           <div className="home-loading">Đang tải sản phẩm...</div>
@@ -162,14 +178,14 @@ function HomePage() {
                     )}
                   </div>
                   <div className="product-info">
-                    <h3 className="product-title">{product.productName}</h3>
+                    <h3 className="product-card-title">{product.productName}</h3>
                     <div className="product-price font-number">{product.price.toLocaleString('vi-VN')} đ</div>
                     <div className="product-footer">
                       <span className="product-shop">
                         <span className="material-symbols-outlined icon-small">storefront</span>
                         {product.shopName || `Shop #${product.shopId}`}
                       </span>
-                      <span className="product-sales font-number">Đã bán 0</span>
+                      <span className="product-sales font-number">Đã bán {product.salesCount || 0}</span>
                     </div>
                   </div>
                 </div>
