@@ -64,3 +64,20 @@ export const verifyVNPayPaymentApi = async (queryString, token) => {
 
   return data;
 };
+
+export const completeShopOrderApi = async (shopOrderId, token) => {
+  const response = await fetch(`${API_BASE_URL}/orders/shop-orders/${shopOrderId}/complete`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi khi xác nhận đã nhận hàng');
+  }
+
+  return data.data;
+};
+
