@@ -78,16 +78,18 @@ function AdminEmailLogPage() {
 
         <div className="admin-filter-bar-right">
           <form onSubmit={handleSearch} className="admin-search-form-inline">
-            <div className="admin-search-input-box">
-              <span className="material-symbols-outlined admin-search-icon" style={{ fontSize: '18px', color: '#64748b' }}>search</span>
+            <div style={{ position: 'relative' }}>
+              <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '20px' }}>search</span>
               <input 
                 type="text" 
+                className="admin-category-form-input"
                 placeholder="Email, tiêu đề..." 
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
+                style={{ width: '280px', paddingLeft: '40px', margin: 0, height: '42px' }}
               />
             </div>
-            <button type="submit" className="admin-btn-search">
+            <button type="submit" className="admin-category-header-btn">
               Tìm kiếm
             </button>
           </form>

@@ -42,6 +42,9 @@ export const useAdminCommission = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'commissionRate') {
+      if (Number(value) < 0 || Number(value) > 100) return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -49,6 +52,12 @@ export const useAdminCommission = () => {
     e.preventDefault();
     if (!formData.categoryId || !formData.commissionRate) {
       setError('Vui lòng chọn danh mục và nhập tỉ lệ hoa hồng');
+      return;
+    }
+    
+    const rate = parseFloat(formData.commissionRate);
+    if (isNaN(rate) || rate < 0 || rate > 100) {
+      setError('Tỉ lệ hoa hồng phải từ 0 đến 100%');
       return;
     }
 

@@ -145,6 +145,14 @@ const AdminLayout = ({ children }) => {
             <span className="material-symbols-outlined">receipt_long</span>
             {!isSidebarCollapsed && <span>Nhật ký thanh toán</span>}
           </NavLink>
+          <NavLink to="/admin/vouchers" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
+            <span className="material-symbols-outlined">local_activity</span>
+            {!isSidebarCollapsed && <span>Quản lý Voucher</span>}
+          </NavLink>
+          <NavLink to="/admin/voucher-history" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
+            <span className="material-symbols-outlined">history</span>
+            {!isSidebarCollapsed && <span>Lịch sử Voucher</span>}
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">

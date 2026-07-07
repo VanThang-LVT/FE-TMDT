@@ -94,14 +94,15 @@ function AdminPaymentPage() {
           <p className="admin-page-desc">Xem và theo dõi tất cả lịch sử giao dịch thanh toán trên hệ thống.</p>
         </div>
         <div className="admin-header-actions">
-          {/* Search Input */}
-          <div className="admin-search admin-search-wrapper admin-payment-search">
-            <span className="material-symbols-outlined admin-search-icon">search</span>
+          <div style={{ position: 'relative' }}>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '20px' }}>search</span>
             <input
               type="text"
+              className="admin-category-form-input"
               placeholder="Tìm theo Tên, Email, Mã Đơn, Mã GD..."
               value={keyword}
               onChange={handleSearchChange}
+              style={{ width: '280px', paddingLeft: '40px', margin: 0, height: '42px' }}
             />
           </div>
 

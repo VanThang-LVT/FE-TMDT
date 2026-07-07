@@ -499,8 +499,21 @@ function OrdersPage() {
                 ))}
               </div>
 
-              <div className="order-detail-total-row">
-                Tổng thanh toán: <strong className="order-detail-total-amount">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedOrder.totalAmount)}</strong>
+              <div className="order-detail-total-section">
+                <div className="order-detail-total-line">
+                  <span>Tổng tiền hàng:</span>
+                  <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedOrder.originalAmount || selectedOrder.totalAmount)}</span>
+                </div>
+                {selectedOrder.discountAmount > 0 && (
+                  <div className="order-detail-total-line discount">
+                    <span>Voucher giảm giá {selectedOrder.voucherCode ? `(${selectedOrder.voucherCode})` : ''}:</span>
+                    <span>-{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedOrder.discountAmount)}</span>
+                  </div>
+                )}
+                <div className="order-detail-total-row">
+                  <span className="order-detail-total-label">Tổng thanh toán:</span>
+                  <strong className="order-detail-total-amount">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedOrder.totalAmount)}</strong>
+                </div>
               </div>
             </div>
           </div>

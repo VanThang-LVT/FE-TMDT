@@ -147,7 +147,7 @@ const AdminCommissionPage = () => {
                     <td>{item.commissionId}</td>
                     <td>{item.categoryName || getCategoryName(item.categoryId)}</td>
                     <td>
-                      <span style={{ backgroundColor: '#e3f2fd', color: '#1976d2', padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold', fontSize: '13px' }}>
+                      <span className="commission-rate-badge">
                         {(item.commissionRate * 100).toFixed(1)}%
                       </span>
                     </td>

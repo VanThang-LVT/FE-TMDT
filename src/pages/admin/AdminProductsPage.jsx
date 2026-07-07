@@ -61,13 +61,15 @@ function AdminProductsPage() {
           <p className="admin-page-desc">Phê duyệt hoặc từ chối các sản phẩm do người bán đăng lên.</p>
         </div>
         <div className="admin-header-actions">
-          <div className="admin-search admin-search-wrapper" style={{ width: '320px' }}>
-            <span className="material-symbols-outlined admin-search-icon">search</span>
+          <div style={{ position: 'relative' }}>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '20px' }}>search</span>
             <input 
               type="text" 
+              className="admin-category-form-input"
               placeholder="Tìm kiếm sản phẩm, gian hàng..." 
               value={keyword}
               onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
+              style={{ width: '280px', paddingLeft: '40px', margin: 0, height: '42px' }}
             />
           </div>
         </div>

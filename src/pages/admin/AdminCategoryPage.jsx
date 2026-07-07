@@ -188,13 +188,15 @@ function AdminCategoryPage() {
           <p className="admin-page-desc">Tạo và quản lý các danh mục sản phẩm trên sàn.</p>
         </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div className="admin-search" style={{ width: '280px', backgroundColor: 'white', margin: 0 }}>
-            <span className="material-symbols-outlined" style={{ color: '#94a3b8' }}>search</span>
+          <div style={{ position: 'relative' }}>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '20px' }}>search</span>
             <input
               type="text"
+              className="admin-category-form-input"
               placeholder="Tìm kiếm danh mục..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: '280px', paddingLeft: '40px', margin: 0, height: '42px' }}
             />
           </div>
           <button className="admin-category-header-btn" onClick={showAddForm ? handleCancelForm : () => setShowAddForm(true)}>
