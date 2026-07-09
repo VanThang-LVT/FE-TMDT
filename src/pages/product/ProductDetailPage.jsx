@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getPublicProductDetailApi } from '../../services/product.service';
+import { getPublicProductDetailApi, trackProductViewApi } from '../../services/product.service';
 import { getProductReviewsApi, getProductReviewStatsApi } from '../../services/review.service';
 import { API_BASE_URL } from '../../utils/constants';
 import DashboardLayout from '../../layouts/DashboardLayout';
@@ -50,6 +50,12 @@ function ProductDetailPage() {
     };
     fetchProduct();
   }, [productId]);
+
+  useEffect(() => {
+    if (productId && token) {
+      trackProductViewApi(productId, token).catch(err => console.error('Lỗi khi ghi nhận lượt xem:', err));
+    }
+  }, [productId, token]);
 
   useEffect(() => {
     const fetchReviews = async () => {

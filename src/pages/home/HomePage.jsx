@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
-import { getPublicProductsApi } from '../../services/product.service';
+import { getPublicProductsApi, getRecentlyViewedProductsApi, getTopSellingProductsApi } from '../../services/product.service';
 import { getPublicBannersApi } from '../../services/banner.service';
 import { getAllCategoriesApi } from '../../services/category.service';
+import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/constants';
 import './HomePage.css';
 
@@ -16,9 +17,13 @@ function HomePage() {
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [topSelling, setTopSelling] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const { token, user } = useAuth();
 
   const nextSlide = () => {
     if (banners.length > 0) setCurrentSlide((prev) => (prev + 1) % banners.length);
@@ -44,14 +49,26 @@ function HomePage() {
           const productsData = await getPublicProductsApi(keyword || '', prompt || '');
           setProducts(productsData);
         } else {
-          const [productsData, bannersData, categoriesData] = await Promise.all([
+          const promises = [
             getPublicProductsApi(),
             getPublicBannersApi(),
-            getAllCategoriesApi()
-          ]);
-          setProducts(productsData);
-          setBanners(bannersData);
-          setCategories(categoriesData);
+            getAllCategoriesApi(),
+            getTopSellingProductsApi(10)
+          ];
+          
+          if (token) {
+            promises.push(getRecentlyViewedProductsApi(token).catch(() => []));
+          }
+
+          const results = await Promise.all(promises);
+          
+          setProducts(results[0]);
+          setBanners(results[1]);
+          setCategories(results[2]);
+          setTopSelling(results[3]);
+          if (token && results[4]) {
+            setRecentlyViewed(results[4]);
+          }
         }
       } catch (err) {
         setError(err.message);
@@ -60,7 +77,7 @@ function HomePage() {
       }
     };
     fetchData();
-  }, [keyword, prompt]);
+  }, [keyword, prompt, token]);
 
   return (
     <DashboardLayout brandName="EoViTi">
@@ -145,6 +162,69 @@ function HomePage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {!keyword && !prompt && !loading && recentlyViewed.length > 0 && (
+          <div className="home-recent-section" style={{ marginTop: '30px' }}>
+            <h2 className="section-title">Sản phẩm bạn vừa xem</h2>
+            <div className="product-grid" style={{ marginTop: '16px' }}>
+              {recentlyViewed.map(product => (
+                <div key={product.productId} className="product-card" onClick={() => navigate(`/product/${product.productId}`)}>
+                  <div className="product-image-container">
+                    {product.mainImageId ? (
+                      <img src={`${API_BASE_URL}/public/images/${product.mainImageId}`} alt={product.productName} className="product-image" />
+                    ) : (
+                      <div className="product-no-image">
+                        <span className="material-symbols-outlined">image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="product-info">
+                    <h3 className="product-card-title">{product.productName}</h3>
+                    <div className="product-price font-number">{product.price.toLocaleString('vi-VN')} đ</div>
+                    <div className="product-footer">
+                      <span className="product-shop">
+                        <span className="material-symbols-outlined icon-small">storefront</span>
+                        {product.shopName || `Shop #${product.shopId}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!keyword && !prompt && !loading && topSelling.length > 0 && (
+          <div className="home-top-selling-section" style={{ marginTop: '30px' }}>
+            <h2 className="section-title">Sản Phẩm Bán Chạy Nhất</h2>
+            <div className="product-grid" style={{ marginTop: '16px' }}>
+              {topSelling.map(product => (
+                <div key={`ts-${product.productId}`} className="product-card" onClick={() => navigate(`/product/${product.productId}`)}>
+                  <div className="product-image-container">
+                    {product.mainImageId ? (
+                      <img src={`${API_BASE_URL}/public/images/${product.mainImageId}`} alt={product.productName} className="product-image" />
+                    ) : (
+                      <div className="product-no-image">
+                        <span className="material-symbols-outlined">image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="product-info">
+                    <h3 className="product-card-title">{product.productName}</h3>
+                    <div className="product-price font-number">{product.price.toLocaleString('vi-VN')} đ</div>
+                    <div className="product-footer">
+                      <span className="product-shop">
+                        <span className="material-symbols-outlined icon-small">storefront</span>
+                        {product.shopName || `Shop #${product.shopId}`}
+                      </span>
+                      <span className="product-sales font-number">Đã bán {product.salesCount || 0}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

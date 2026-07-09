@@ -132,3 +132,40 @@ export const getPublicProductDetailApi = async (productId) => {
   }
   return response.json();
 };
+
+export const trackProductViewApi = async (productId, token) => {
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+  const response = await fetch(`${API_BASE_URL}/products/${productId}/view`, {
+    method: 'POST',
+    headers
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Lỗi ghi nhận lượt xem');
+  }
+};
+
+export const getRecentlyViewedProductsApi = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/products/recently-viewed`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi tải sản phẩm vừa xem');
+  }
+  return data.data;
+};
+
+export const getTopSellingProductsApi = async (limit = 10) => {
+  const response = await fetch(`${API_BASE_URL}/products/top-selling?limit=${limit}`);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi tải sản phẩm bán chạy');
+  }
+  return data.data;
+};
