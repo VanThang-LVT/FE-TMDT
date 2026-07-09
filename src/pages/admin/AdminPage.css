@@ -2488,5 +2488,121 @@
   background: linear-gradient(90deg, var(--bar-color-start, #3b82f6), var(--bar-color-end, #2563eb));
 }
 
+/* =======================
+   ADMIN USERS STYLES
+======================== */
+.admin-search-wrapper {
+  position: relative;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 20px;
+}
+
+.admin-search-input {
+  width: 280px;
+  padding-left: 40px;
+  margin: 0;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  outline: none;
+  background-color: white;
+  transition: border-color 0.2s;
+}
+
+.admin-search-input:focus {
+  border-color: var(--primary-color);
+}
+
+.admin-user-info-flex {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-user-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.admin-user-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.admin-role-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-role-badge.admin {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.admin-role-badge.seller {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.admin-role-badge.customer {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.admin-pagination-chevron-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-bottom: 20px;
+}
+
+.admin-pagination-chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #16a34a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-pagination-chevron-btn:disabled {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.admin-pagination-chevron-info {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+}
+
 
 

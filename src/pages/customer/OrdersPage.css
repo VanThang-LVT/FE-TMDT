@@ -315,9 +315,6 @@
   box-shadow: 0 0 0 2px var(--primary-light, #bfdbfe);
 }
 
-.horizontal-timeline-item.active ~ .horizontal-timeline-item .horizontal-timeline-marker {
-  /* Nếu cần tuỳ chỉnh các item sau item active */
-}
 
 .horizontal-timeline-content {
   padding-left: 0;
