@@ -55,7 +55,7 @@ function ReconciliationChart({ monthlyDetails, period, setPeriod }) {
     ...sortedData.map(d => Number(d.sellerPayout) || 0),
     100000
   );
-  
+
   // Calculate a nice, clean step interval for Y axis ticks
   const rawStep = (maxVal * 1.15) / 4;
   const order = Math.pow(10, Math.floor(Math.log10(rawStep)));
@@ -66,7 +66,7 @@ function ReconciliationChart({ monthlyDetails, period, setPeriod }) {
   else if (normalized <= 2.5) roundedNormalized = 2.5;
   else if (normalized <= 5) roundedNormalized = 5;
   else roundedNormalized = 10;
-  
+
   const step = roundedNormalized * order;
   const roundedMax = step * 4;
 
@@ -111,15 +111,15 @@ function ReconciliationChart({ monthlyDetails, period, setPeriod }) {
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    
+
     // Scale X percentage to find nearest index
     const xSvg = x * (svgWidth / rect.width);
     const spacing = chartWidth / sortedData.length;
     let idx = Math.round((xSvg - paddingLeft - spacing / 2) / spacing);
     idx = Math.max(0, Math.min(sortedData.length - 1, idx));
-    
+
     setHoveredIndex(idx);
-    
+
     setTooltipPos({
       x: getX(idx) * (rect.width / svgWidth),
       y: getY(sortedData[idx].sellerPayout) * (rect.height / svgHeight) - 100
@@ -137,14 +137,14 @@ function ReconciliationChart({ monthlyDetails, period, setPeriod }) {
 
 
           <div className="recon-chart-tabs">
-            <button 
+            <button
               className={`recon-chart-tab ${chartType === 'line' ? 'active' : ''}`}
               onClick={() => setChartType('line')}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>show_chart</span>
               Đường
             </button>
-            <button 
+            <button
               className={`recon-chart-tab ${chartType === 'bar' ? 'active' : ''}`}
               onClick={() => setChartType('bar')}
             >
@@ -156,8 +156,8 @@ function ReconciliationChart({ monthlyDetails, period, setPeriod }) {
       </div>
 
       <div className="recon-chart-svg-container" style={{ height: 'auto' }}>
-        <svg 
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`} 
+        <svg
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="recon-chart-svg"
           style={{ width: '100%', height: 'auto', display: 'block' }}
           onMouseMove={handleMouseMove}
@@ -165,8 +165,8 @@ function ReconciliationChart({ monthlyDetails, period, setPeriod }) {
         >
           <defs>
             <linearGradient id="grad-payout" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ea580c" stopOpacity="0.2"/>
-              <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0"/>
+              <stop offset="0%" stopColor="#ea580c" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
@@ -235,11 +235,11 @@ function ReconciliationChart({ monthlyDetails, period, setPeriod }) {
 
         {/* Floating Tooltip */}
         {hoveredIndex !== null && (
-          <div 
-            className="recon-chart-tooltip" 
-            style={{ 
-              left: `${tooltipPos.x + 16}px`, 
-              top: `${Math.max(10, Math.min(180, tooltipPos.y))}px` 
+          <div
+            className="recon-chart-tooltip"
+            style={{
+              left: `${tooltipPos.x + 16}px`,
+              top: `${Math.max(10, Math.min(180, tooltipPos.y))}px`
             }}
           >
             <div className="recon-tooltip-title">{formatMonth(sortedData[hoveredIndex].month)}</div>
@@ -327,19 +327,19 @@ function AdminReconciliationPage() {
         </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <div className="recon-chart-tabs header-tabs">
-            <button 
+            <button
               className={`recon-chart-tab ${period === 'week' ? 'active' : ''}`}
               onClick={() => setPeriod('week')}
             >
               Tuần
             </button>
-            <button 
+            <button
               className={`recon-chart-tab ${period === 'month' ? 'active' : ''}`}
               onClick={() => setPeriod('month')}
             >
               Tháng
             </button>
-            <button 
+            <button
               className={`recon-chart-tab ${period === 'year' ? 'active' : ''}`}
               onClick={() => setPeriod('year')}
             >
@@ -440,11 +440,11 @@ function AdminReconciliationPage() {
                   topShops.map((shop, idx) => {
                     const pct = maxShopRevenue > 0 ? (Number(shop.totalRevenue) / Number(maxShopRevenue)) * 100 : 0;
                     const barColors = [
-                      { start: '#3b82f6', end: '#1d4ed8' }, 
-                      { start: '#10b981', end: '#047857' }, 
-                      { start: '#8b5cf6', end: '#6d28d9' }, 
-                      { start: '#f59e0b', end: '#b45309' }, 
-                      { start: '#64748b', end: '#475569' }  
+                      { start: '#3b82f6', end: '#1d4ed8' },
+                      { start: '#10b981', end: '#047857' },
+                      { start: '#8b5cf6', end: '#6d28d9' },
+                      { start: '#f59e0b', end: '#b45309' },
+                      { start: '#64748b', end: '#475569' }
                     ];
                     const color = barColors[idx] || barColors[4];
 
@@ -455,13 +455,13 @@ function AdminReconciliationPage() {
                           <span className="recon-shop-stat-val">{formatVND(shop.totalRevenue)}</span>
                         </div>
                         <div className="recon-progress-container">
-                          <div 
-                            className="recon-progress-fill" 
-                            style={{ 
+                          <div
+                            className="recon-progress-fill"
+                            style={{
                               width: `${pct}%`,
                               '--bar-color-start': color.start,
                               '--bar-color-end': color.end
-                            }} 
+                            }}
                           />
                         </div>
                       </div>

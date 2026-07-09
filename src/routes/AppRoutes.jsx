@@ -12,6 +12,7 @@ import AdminPaymentPage from '../pages/admin/AdminPaymentPage';
 import AdminVoucherPage from '../pages/admin/AdminVoucherPage';
 import AdminVoucherHistoryPage from '../pages/admin/AdminVoucherHistoryPage';
 import AdminReconciliationPage from '../pages/admin/AdminReconciliationPage';
+import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
 import ProfilePage from '../pages/customer/ProfilePage';
 import ChangePasswordPage from '../pages/customer/ChangePasswordPage';
 import OrdersPage from '../pages/customer/OrdersPage';
@@ -62,6 +63,7 @@ function AppRoutes() {
       <Route path="/admin/vouchers" element={<AdminVoucherPage />} />
       <Route path="/admin/voucher-history" element={<AdminVoucherHistoryPage />} />
       <Route path="/admin/reconciliation" element={<AdminReconciliationPage />} />
+      <Route path="/admin/orders" element={<AdminOrdersPage />} />
 
       {/* Seller Routes */}
       <Route path="/seller" element={<SellerPage />} />

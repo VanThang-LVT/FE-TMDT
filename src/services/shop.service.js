@@ -90,7 +90,7 @@ export const getShopOrdersApi = async (token, params = {}) => {
   if (!response.ok) {
     throw new Error(data.message || 'Lỗi lấy danh sách đơn hàng!');
   }
-  return data.data; // data.data is now a Page object
+  return data.data; 
 };
 
 export const updateShopOrderStatusApi = async (shopOrderId, status, token, cancelReason = null) => {
@@ -109,7 +109,7 @@ export const updateShopOrderStatusApi = async (shopOrderId, status, token, cance
   if (!response.ok) {
     throw new Error(data.message || 'Lỗi cập nhật trạng thái đơn hàng!');
   }
-  return data.data;
+  return data;
 };
 
 export const getOrderCountsApi = async (token) => {

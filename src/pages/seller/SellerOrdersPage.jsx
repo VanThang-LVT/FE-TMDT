@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import SellerLayout from '../../layouts/SellerLayout';
 import { getShopOrdersApi, updateShopOrderStatusApi, getOrderCountsApi } from '../../services/shop.service';
 import ConfirmModal from '../../components/modals/ConfirmModal';
+import Alert from '../../components/Alert';
 import '../admin/AdminPage.css';
 import './SellerOrdersPage.css';
 
@@ -24,6 +25,8 @@ function SellerOrdersPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  const [success, setSuccess] = useState(null);
+
   const [cancelModalData, setCancelModalData] = useState({ isOpen: false, orderId: null });
   const [cancelReason, setCancelReason] = useState('');
 
@@ -41,13 +44,13 @@ function SellerOrdersPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       let statuses = [];
       if (activeTab === 'PENDING') statuses = ['PENDING'];
       else if (activeTab === 'CONFIRMED') statuses = ['CONFIRMED', 'READY'];
       else if (activeTab === 'SHIPPING') statuses = ['SHIPPING', 'COMPLETED'];
       else if (activeTab === 'CANCELLED') statuses = ['CANCELLED'];
-      
+
       const params = {
         page,
         size,
@@ -81,26 +84,33 @@ function SellerOrdersPage() {
 
   const confirmUpdate = async () => {
     const { orderId, newStatus } = confirmModalData;
+    setError(null);
+    setSuccess(null);
     try {
-      await updateShopOrderStatusApi(orderId, newStatus, token);
+      const res = await updateShopOrderStatusApi(orderId, newStatus, token);
+      setSuccess(res.message || 'Cập nhật trạng thái thành công');
       fetchOrders();
     } catch (err) {
-      alert(err.message || 'Lỗi khi cập nhật trạng thái');
+      setError(err.message || 'Lỗi khi cập nhật trạng thái');
     } finally {
       setConfirmModalData({ isOpen: false, orderId: null, newStatus: null });
     }
   };
 
   const confirmCancel = async () => {
+    setError(null);
+    setSuccess(null);
     if (!cancelReason.trim()) {
-      alert("Vui lòng nhập lý do hủy đơn");
+      setError("Vui lòng nhập lý do hủy đơn");
+      setCancelModalData({ isOpen: false, orderId: null });
       return;
     }
     try {
-      await updateShopOrderStatusApi(cancelModalData.orderId, 'CANCELLED', token, cancelReason);
+      const res = await updateShopOrderStatusApi(cancelModalData.orderId, 'CANCELLED', token, cancelReason);
+      setSuccess(res.message || 'Hủy đơn hàng thành công');
       fetchOrders();
     } catch (err) {
-      alert(err.message || 'Lỗi khi hủy đơn hàng');
+      setError(err.message || 'Lỗi khi hủy đơn hàng');
     } finally {
       setCancelModalData({ isOpen: false, orderId: null });
       setCancelReason('');
@@ -117,6 +127,12 @@ function SellerOrdersPage() {
       case 'CANCELLED': return 'Đã hủy';
       default: return status;
     }
+  };
+
+  const getPaymentMethodText = (method) => {
+    if (method === 'VNPAY') return 'Chuyển khoản (VNPAY)';
+    if (method === 'COD') return 'Thanh toán khi nhận hàng (COD)';
+    return method || 'Chưa rõ';
   };
 
   const formatCurrency = (amount) => {
@@ -142,10 +158,10 @@ function SellerOrdersPage() {
     sortedHistories.forEach(history => {
       timeline.push({ status: history.newStatus, time: history.createdAt, user: history.updatedByFullName });
     });
-    
+
     return timeline;
   };
-  
+
 
   if (loading) {
     return (
@@ -161,9 +177,9 @@ function SellerOrdersPage() {
   const renderActionIcons = (order) => {
     return (
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-        <button 
-          className="admin-action-btn" 
-          title="Xem chi tiết" 
+        <button
+          className="admin-action-btn"
+          title="Xem chi tiết"
           onClick={() => setSelectedOrder(order)}
           style={{ backgroundColor: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe' }}
         >
@@ -171,16 +187,16 @@ function SellerOrdersPage() {
         </button>
         {order.status === 'PENDING' && (
           <>
-            <button 
-              className="admin-action-btn approve" 
-              title="Xác nhận đơn" 
+            <button
+              className="admin-action-btn approve"
+              title="Xác nhận đơn"
               onClick={() => handleUpdateStatus(order.shopOrderId, 'CONFIRMED')}
             >
               <span className="material-symbols-outlined icon-18">check_circle</span> Xác nhận
             </button>
-            <button 
-              className="admin-action-btn reject" 
-              title="Hủy đơn" 
+            <button
+              className="admin-action-btn reject"
+              title="Hủy đơn"
               onClick={() => handleUpdateStatus(order.shopOrderId, 'CANCELLED')}
             >
               <span className="material-symbols-outlined icon-18">cancel</span> Hủy
@@ -188,18 +204,18 @@ function SellerOrdersPage() {
           </>
         )}
         {order.status === 'CONFIRMED' && (
-          <button 
-            className="admin-action-btn approve" 
-            title="Đã chuẩn bị xong" 
+          <button
+            className="admin-action-btn approve"
+            title="Đã chuẩn bị xong"
             onClick={() => handleUpdateStatus(order.shopOrderId, 'READY')}
           >
             <span className="material-symbols-outlined icon-18">inventory_2</span> Chuẩn bị xong
           </button>
         )}
         {order.status === 'READY' && (
-          <button 
-            className="admin-action-btn approve" 
-            title="Giao cho vận chuyển" 
+          <button
+            className="admin-action-btn approve"
+            title="Giao cho vận chuyển"
             onClick={() => handleUpdateStatus(order.shopOrderId, 'SHIPPING')}
           >
             <span className="material-symbols-outlined icon-18">local_shipping</span> Giao ĐVVC
@@ -217,13 +233,13 @@ function SellerOrdersPage() {
           <h2 className="admin-page-title">Quản lý Đơn hàng</h2>
           <p className="admin-page-desc">Theo dõi và xử lý các đơn hàng từ khách hàng.</p>
         </div>
-        
+
         <div className="admin-filter-bar" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'nowrap', backgroundColor: '#fff', padding: '10px 15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <div className="admin-search-box" style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', padding: '0 12px', borderRadius: '6px', border: '1px solid #e2e8f0', minWidth: '250px' }}>
             <span className="material-symbols-outlined admin-search-icon" style={{ fontSize: '18px', color: '#64748b' }}>search</span>
-            <input 
-              type="text" 
-              placeholder="Mã đơn, tên, SĐT..." 
+            <input
+              type="text"
+              placeholder="Mã đơn, tên, SĐT..."
               className="admin-search-input"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -231,12 +247,12 @@ function SellerOrdersPage() {
               style={{ border: 'none', background: 'transparent', padding: '8px', outline: 'none', width: '100%', fontSize: '14px' }}
             />
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ fontSize: '13px', color: '#64748b' }}>Từ:</span>
-            <input 
-              type="date" 
-              className="admin-filter-select" 
+            <input
+              type="date"
+              className="admin-filter-select"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               title="Từ ngày"
@@ -245,9 +261,9 @@ function SellerOrdersPage() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ fontSize: '13px', color: '#64748b' }}>Đến:</span>
-            <input 
-              type="date" 
-              className="admin-filter-select" 
+            <input
+              type="date"
+              className="admin-filter-select"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               title="Đến ngày"
@@ -255,24 +271,24 @@ function SellerOrdersPage() {
             />
           </div>
           <button className="btn btn-primary" onClick={() => setKeyword(searchInput)} style={{ padding: '8px 16px', whiteSpace: 'nowrap', width: 'auto' }}>Tìm kiếm</button>
-          
+
           {(searchInput || startDate || endDate) && (
-            <button 
+            <button
               onClick={() => {
                 setSearchInput('');
                 setKeyword('');
                 setStartDate('');
                 setEndDate('');
               }}
-              style={{ 
-                background: '#fee2e2', 
-                border: 'none', 
-                cursor: 'pointer', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                color: '#ef4444', 
-                padding: '8px', 
+              style={{
+                background: '#fee2e2',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ef4444',
+                padding: '8px',
                 borderRadius: '8px',
                 transition: 'all 0.2s'
               }}
@@ -287,25 +303,25 @@ function SellerOrdersPage() {
       </div>
 
       <div className="admin-tabs admin-tabs-container">
-        <button 
+        <button
           className={`btn ${activeTab === 'PENDING' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveTab('PENDING')}
         >
           Chờ xác nhận {orderCounts['PENDING'] > 0 ? `(${orderCounts['PENDING']})` : ''}
         </button>
-        <button 
+        <button
           className={`btn ${activeTab === 'CONFIRMED' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveTab('CONFIRMED')}
         >
           Chờ lấy hàng {((orderCounts['CONFIRMED'] || 0) + (orderCounts['READY'] || 0)) > 0 ? `(${(orderCounts['CONFIRMED'] || 0) + (orderCounts['READY'] || 0)})` : ''}
         </button>
-        <button 
+        <button
           className={`btn ${activeTab === 'SHIPPING' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveTab('SHIPPING')}
         >
           Đã giao ĐVVC {((orderCounts['SHIPPING'] || 0) + (orderCounts['COMPLETED'] || 0)) > 0 ? `(${(orderCounts['SHIPPING'] || 0) + (orderCounts['COMPLETED'] || 0)})` : ''}
         </button>
-        <button 
+        <button
           className={`btn ${activeTab === 'CANCELLED' ? 'btn-primary' : 'btn-outline'}`}
           onClick={() => setActiveTab('CANCELLED')}
         >
@@ -344,27 +360,27 @@ function SellerOrdersPage() {
                     <td>
                       {order.orderItems && order.orderItems.length > 0 ? (
                         <div className="product-list-item">
-                           <div className="product-list-img-box">
-                             {order.orderItems[0].imageUrl ? (
-                               <img 
-                                 src={order.orderItems[0].imageUrl.startsWith('http') ? order.orderItems[0].imageUrl : `http://localhost:8080${order.orderItems[0].imageUrl}`} 
-                                 className="product-list-img" 
-                                 alt={order.orderItems[0].productName} 
-                               />
-                             ) : (
-                               <span className="material-symbols-outlined product-list-img-placeholder">image</span>
-                             )}
-                           </div>
-                           <div>
-                             <div className="product-list-name" style={{ WebkitLineClamp: 1, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                               {order.orderItems[0].productName}
-                             </div>
-                             {order.orderItems.length > 1 && (
-                               <div className="product-list-brand" style={{ color: 'var(--primary-color)', marginTop: '4px' }}>
-                                 + {order.orderItems.length - 1} sản phẩm khác
-                               </div>
-                             )}
-                           </div>
+                          <div className="product-list-img-box">
+                            {order.orderItems[0].imageUrl ? (
+                              <img
+                                src={order.orderItems[0].imageUrl.startsWith('http') ? order.orderItems[0].imageUrl : `http://localhost:8080${order.orderItems[0].imageUrl}`}
+                                className="product-list-img"
+                                alt={order.orderItems[0].productName}
+                              />
+                            ) : (
+                              <span className="material-symbols-outlined product-list-img-placeholder">image</span>
+                            )}
+                          </div>
+                          <div>
+                            <div className="product-list-name" style={{ WebkitLineClamp: 1, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                              {order.orderItems[0].productName}
+                            </div>
+                            {order.orderItems.length > 1 && (
+                              <div className="product-list-brand" style={{ color: 'var(--primary-color)', marginTop: '4px' }}>
+                                + {order.orderItems.length - 1} sản phẩm khác
+                              </div>
+                            )}
+                          </div>
                         </div>
                       ) : (
                         <span style={{ color: '#94a3b8' }}>Không có sản phẩm</span>
@@ -383,7 +399,7 @@ function SellerOrdersPage() {
                     </td>
                     <td>
                       <div className="admin-actions" style={{ justifyContent: 'center' }}>
-                         {renderActionIcons(order)}
+                        {renderActionIcons(order)}
                       </div>
                     </td>
                   </tr>
@@ -396,21 +412,21 @@ function SellerOrdersPage() {
 
       {totalPages > 0 && (
         <div className="admin-pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
-          <button 
-            className="admin-pagination-btn" 
+          <button
+            className="admin-pagination-btn"
             disabled={page === 0}
             onClick={() => setPage(page - 1)}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: page === 0 ? '#f1f5f9' : '#fff', color: page === 0 ? '#94a3b8' : '#334155', cursor: page === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
           >
             <span className="material-symbols-outlined">chevron_left</span>
           </button>
-          
+
           <span className="admin-pagination-info" style={{ fontSize: '14px', fontWeight: '500', color: '#475569' }}>
             Trang {page + 1} / {totalPages}
           </span>
-          
-          <button 
-            className="admin-pagination-btn" 
+
+          <button
+            className="admin-pagination-btn"
             disabled={page >= totalPages - 1}
             onClick={() => setPage(page + 1)}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: page >= totalPages - 1 ? '#f1f5f9' : '#fff', color: page >= totalPages - 1 ? '#94a3b8' : '#334155', cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
@@ -435,8 +451,12 @@ function SellerOrdersPage() {
                   <h4 className="order-detail-section-title">Thông tin đơn hàng</h4>
                   <p><strong>Trạng thái:</strong> <span className={`admin-status-badge ${selectedOrder.status === 'PENDING' ? 'pending' : (selectedOrder.status === 'CANCELLED' ? 'inactive' : 'active')}`}>{getStatusText(selectedOrder.status)}</span></p>
                   <p><strong>Ngày đặt:</strong> {formatDate(selectedOrder.createdAt)}</p>
+                  <p><strong>Thanh toán:</strong> {getPaymentMethodText(selectedOrder.paymentMethod)}</p>
+                  {selectedOrder.voucherDiscount > 0 && (
+                    <p><strong>Voucher:</strong> <span style={{ color: '#059669', fontWeight: 600 }}>{formatCurrency(selectedOrder.voucherDiscount)}</span></p>
+                  )}
                   {selectedOrder.status === 'CANCELLED' && selectedOrder.cancelReason && (
-                    <p style={{color: '#dc2626', marginTop: '5px'}}><strong>Lý do hủy:</strong> {selectedOrder.cancelReason}</p>
+                    <p style={{ color: '#dc2626', marginTop: '5px' }}><strong>Lý do hủy:</strong> {selectedOrder.cancelReason}</p>
                   )}
                 </div>
                 <div className="order-detail-info-right">
@@ -453,9 +473,9 @@ function SellerOrdersPage() {
                   <div key={item.orderItemId || index} className={`order-detail-item ${index < selectedOrder.orderItems.length - 1 ? 'has-border' : ''}`}>
                     <div className="order-detail-img-box">
                       {item.imageUrl ? (
-                        <img 
-                          src={item.imageUrl.startsWith('http') ? item.imageUrl : `http://localhost:8080${item.imageUrl}`} 
-                          alt={item.productName} 
+                        <img
+                          src={item.imageUrl.startsWith('http') ? item.imageUrl : `http://localhost:8080${item.imageUrl}`}
+                          alt={item.productName}
                           className="order-detail-img"
                         />
                       ) : (
@@ -534,26 +554,26 @@ function SellerOrdersPage() {
       )}
 
       {cancelModalData.isOpen && (
-        <div className="product-detail-modal-overlay">
-          <div className="product-detail-modal-content" style={{ maxWidth: '500px' }}>
-            <div className="product-detail-modal-header">
-              <h3>Lý do hủy đơn hàng #{cancelModalData.orderId}</h3>
-              <button className="admin-category-modal-close" onClick={() => setCancelModalData({ isOpen: false, orderId: null })}>
+        <div className="modal-overlay">
+          <div className="modal-container" style={{ maxWidth: '450px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Lý do hủy đơn hàng #{cancelModalData.orderId}</h3>
+              <button className="modal-close" onClick={() => setCancelModalData({ isOpen: false, orderId: null })}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div className="product-detail-body">
-              <p style={{ marginBottom: '10px' }}>Vui lòng nhập lý do hủy đơn hàng (Bắt buộc):</p>
-              <textarea 
-                className="admin-form-input"
-                style={{ width: '100%', height: '100px', resize: 'vertical' }}
+            <div className="modal-body">
+              <p style={{ marginBottom: '16px' }}>Vui lòng nhập lý do hủy đơn hàng (Bắt buộc):</p>
+              <textarea
+                className="modal-textarea"
                 value={cancelReason}
                 onChange={e => setCancelReason(e.target.value)}
                 placeholder="Ví dụ: Hết hàng, Sai giá..."
               />
-              <div className="admin-form-actions" style={{ marginTop: '20px' }}>
-                <button className="btn btn-danger" onClick={confirmCancel}>Xác nhận hủy</button>
-              </div>
+            </div>
+            <div className="modal-footer" style={{ justifyContent: 'center' }}>
+              <button className="btn btn-secondary" onClick={() => setCancelModalData({ isOpen: false, orderId: null })}>Đóng</button>
+              <button className="btn btn-danger" onClick={confirmCancel}>Xác nhận hủy</button>
             </div>
           </div>
         </div>

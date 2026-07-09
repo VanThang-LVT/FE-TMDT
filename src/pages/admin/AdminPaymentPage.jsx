@@ -68,8 +68,8 @@ function AdminPaymentPage() {
   };
 
   const getStatusBadgeClass = (statusStr) => {
-    if (statusStr === 'SUCCESS') return 'success';
-    if (statusStr === 'FAILED' || statusStr === 'CANCELLED') return 'failed';
+    if (statusStr === 'SUCCESS' || statusStr === 'HOAN_TIEN_THANH_CONG') return 'success';
+    if (statusStr === 'FAILED' || statusStr === 'CANCELLED' || statusStr === 'HOAN_TIEN_THAT_BAI') return 'failed';
     return 'pending';
   };
 
@@ -77,6 +77,8 @@ function AdminPaymentPage() {
     if (statusStr === 'SUCCESS') return 'Thành công';
     if (statusStr === 'FAILED') return 'Thất bại';
     if (statusStr === 'CANCELLED') return 'Đã hủy';
+    if (statusStr === 'HOAN_TIEN_THANH_CONG') return 'Hoàn tiền T.Công';
+    if (statusStr === 'HOAN_TIEN_THAT_BAI') return 'Hoàn tiền Thất bại';
     return statusStr;
   };
 
@@ -115,6 +117,8 @@ function AdminPaymentPage() {
             <option value="">Tất cả trạng thái</option>
             <option value="SUCCESS">Thành công</option>
             <option value="FAILED">Thất bại</option>
+            <option value="HOAN_TIEN_THANH_CONG">Hoàn tiền T.Công</option>
+            <option value="HOAN_TIEN_THAT_BAI">Hoàn tiền Thất bại</option>
           </select>
 
           {/* Tải lại Button */}
@@ -212,38 +216,42 @@ function AdminPaymentPage() {
         </div>
 
         {/* Pagination Footer */}
+        {/* Pagination Footer */}
         {!loading && totalPages > 1 && (
-          <div className="admin-pagination-container">
-            <span className="admin-pagination-info">
-              Hiển thị <strong>{page * pageSize + 1}</strong> - <strong>{Math.min((page + 1) * pageSize, totalElements)}</strong> trong số <strong>{totalElements}</strong> giao dịch
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginTop: '20px', paddingBottom: '20px' }}>
+            <button
+              disabled={page === 0}
+              onClick={() => handlePageChange(page - 1)}
+              style={{ 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', 
+                border: page === 0 ? '1px solid #e2e8f0' : '1px solid #bbf7d0', 
+                background: page === 0 ? '#f8fafc' : '#f0fdf4', 
+                color: page === 0 ? '#94a3b8' : '#16a34a', 
+                cursor: page === 0 ? 'not-allowed' : 'pointer', 
+                transition: 'all 0.2s' 
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
+            </button>
+            
+            <span style={{ fontSize: '14px', fontWeight: '500', color: '#475569' }}>
+              Trang {page + 1} / {totalPages}
             </span>
-            <div className="admin-pagination-buttons">
-              <button
-                className="admin-pagination-btn"
-                disabled={page === 0}
-                onClick={() => handlePageChange(page - 1)}
-              >
-                Trước
-              </button>
-              
-              {[...Array(totalPages).keys()].map((pNum) => (
-                <button
-                  key={pNum}
-                  className={`admin-pagination-btn ${pNum === page ? 'active' : ''}`}
-                  onClick={() => handlePageChange(pNum)}
-                >
-                  {pNum + 1}
-                </button>
-              ))}
-
-              <button
-                className="admin-pagination-btn"
-                disabled={page === totalPages - 1}
-                onClick={() => handlePageChange(page + 1)}
-              >
-                Sau
-              </button>
-            </div>
+            
+            <button
+              disabled={page >= totalPages - 1}
+              onClick={() => handlePageChange(page + 1)}
+              style={{ 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', 
+                border: page >= totalPages - 1 ? '1px solid #e2e8f0' : '1px solid #bbf7d0', 
+                background: page >= totalPages - 1 ? '#f8fafc' : '#f0fdf4', 
+                color: page >= totalPages - 1 ? '#94a3b8' : '#16a34a', 
+                cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer', 
+                transition: 'all 0.2s' 
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
+            </button>
           </div>
         )}
       </div>
