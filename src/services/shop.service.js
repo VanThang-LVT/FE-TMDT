@@ -126,3 +126,34 @@ export const getOrderCountsApi = async (token) => {
   }
   return data.data;
 };
+
+export const searchShopsApi = async (token, params) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await fetch(`${API_BASE_URL}/shops/admin/page?${query}`, {
+    method: 'GET',
+    headers: { 
+      'Authorization': `Bearer ${token}` 
+    }
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi tải danh sách cửa hàng');
+  }
+  return data.data;
+};
+
+export const updateShopStatusByAdminApi = async (token, shopId, status) => {
+  const response = await fetch(`${API_BASE_URL}/shops/admin/${shopId}/status?status=${status}`, {
+    method: 'PUT',
+    headers: { 
+      'Authorization': `Bearer ${token}` 
+    }
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi cập nhật trạng thái cửa hàng');
+  }
+  return data;
+};
