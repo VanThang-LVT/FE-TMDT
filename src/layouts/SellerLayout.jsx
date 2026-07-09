@@ -132,6 +132,10 @@ const SellerLayout = ({ children }) => {
             <span className="material-symbols-outlined">reviews</span>
             {!isSidebarCollapsed && <span>Quản lý đánh giá</span>}
           </a>
+          <a className={`admin-nav-item ${location.pathname === '/seller/reconciliation' ? 'active' : ''}`} onClick={() => navigate('/seller/reconciliation')} title="Đối soát tài chính">
+            <span className="material-symbols-outlined">account_balance</span>
+            {!isSidebarCollapsed && <span>Đối soát tài chính</span>}
+          </a>
         </nav>
 
         <div className="admin-sidebar-footer">

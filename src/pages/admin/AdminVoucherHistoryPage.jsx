@@ -87,21 +87,23 @@ function AdminVoucherHistoryPage() {
                   <th>Voucher</th>
                   <th>Khách hàng</th>
                   <th>Mã đơn hàng</th>
-                  <th>Giá trị đơn hàng</th>
+                  <th style={{ textAlign: 'right' }}>Giá gốc</th>
+                  <th style={{ textAlign: 'right' }}>Tiền giảm</th>
+                  <th style={{ textAlign: 'right' }}>Thanh toán</th>
                   <th>Thời gian sử dụng</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="admin-empty-state">
+                    <td colSpan="7" className="admin-empty-state">
                       <div className="spinner" style={{ margin: '0 auto' }}></div>
                       <p style={{ marginTop: '8px', color: '#94a3b8' }}>Đang tải...</p>
                     </td>
                   </tr>
                 ) : usages.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="admin-empty-state">
+                    <td colSpan="7" className="admin-empty-state">
                       <div className="empty-content">
                         <span className="material-symbols-outlined empty-icon">history</span>
                         <p>Chưa có lịch sử sử dụng nào.</p>
@@ -124,10 +126,14 @@ function AdminVoucherHistoryPage() {
                         #{u.orderId}
                       </span>
                     </td>
-                    <td>
-                      <span className="text-danger-strong">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(u.orderTotalAmount)}
-                      </span>
+                    <td style={{ textAlign: 'right', fontWeight: 600, color: '#475569' }}>
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(u.orderOriginalAmount || 0)}
+                    </td>
+                    <td style={{ textAlign: 'right', fontWeight: 600, color: '#dc2626' }}>
+                      -{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(u.orderDiscountAmount || 0)}
+                    </td>
+                    <td style={{ textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(u.orderTotalAmount || 0)}
                     </td>
                     <td className="text-normal-small">
                       {formatDate(u.usedAt)}

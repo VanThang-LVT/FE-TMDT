@@ -153,6 +153,10 @@ const AdminLayout = ({ children }) => {
             <span className="material-symbols-outlined">history</span>
             {!isSidebarCollapsed && <span>Lịch sử Voucher</span>}
           </NavLink>
+          <NavLink to="/admin/reconciliation" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`} title="Đối soát tài chính">
+            <span className="material-symbols-outlined">account_balance</span>
+            {!isSidebarCollapsed && <span>Đối soát tài chính</span>}
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">
