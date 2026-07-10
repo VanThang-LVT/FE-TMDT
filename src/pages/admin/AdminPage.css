@@ -1575,43 +1575,7 @@
   border-top: 1px solid #e2e8f0;
 }
 
-.admin-pagination-info {
-  font-size: 14px;
-  color: #64748b;
-}
 
-.admin-pagination-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.admin-pagination-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background-color: white;
-  color: #334155;
-  font-size: 13.5px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.admin-pagination-btn:hover:not(:disabled) {
-  background-color: #f1f5f9;
-  border-color: #94a3b8;
-}
-
-.admin-pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.admin-pagination-btn.active {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
 
 /* Specific filters size for Admin Payment Page header */
 .admin-payment-search {
@@ -1776,43 +1740,7 @@
   border-top: 1px solid #e2e8f0;
 }
 
-.admin-pagination-info {
-  font-size: 14px;
-  color: #64748b;
-}
 
-.admin-pagination-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.admin-pagination-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background-color: white;
-  color: #334155;
-  font-size: 13.5px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.admin-pagination-btn:hover:not(:disabled) {
-  background-color: #f1f5f9;
-  border-color: #94a3b8;
-}
-
-.admin-pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.admin-pagination-btn.active {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
 
 /* Specific filters size for Admin Payment Page header */
 .admin-payment-search {

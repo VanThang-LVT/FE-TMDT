@@ -411,25 +411,23 @@ function SellerOrdersPage() {
       </div>
 
       {totalPages > 0 && (
-        <div className="admin-pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
+        <div className="admin-pagination-container justify-center bg-light" style={{ marginTop: '20px' }}>
           <button
-            className="admin-pagination-btn"
+            className="admin-pagination-arrow-btn"
             disabled={page === 0}
             onClick={() => setPage(page - 1)}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: page === 0 ? '#f1f5f9' : '#fff', color: page === 0 ? '#94a3b8' : '#334155', cursor: page === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
           >
             <span className="material-symbols-outlined">chevron_left</span>
           </button>
 
-          <span className="admin-pagination-info" style={{ fontSize: '14px', fontWeight: '500', color: '#475569' }}>
+          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1e293b' }}>
             Trang {page + 1} / {totalPages}
           </span>
 
           <button
-            className="admin-pagination-btn"
+            className="admin-pagination-arrow-btn"
             disabled={page >= totalPages - 1}
             onClick={() => setPage(page + 1)}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: page >= totalPages - 1 ? '#f1f5f9' : '#fff', color: page >= totalPages - 1 ? '#94a3b8' : '#334155', cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
           >
             <span className="material-symbols-outlined">chevron_right</span>
           </button>

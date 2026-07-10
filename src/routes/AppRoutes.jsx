@@ -24,6 +24,7 @@ import SellerProductsPage from '../pages/seller/SellerProductsPage';
 import SellerOrdersPage from '../pages/seller/SellerOrdersPage';
 import SellerReviewsPage from '../pages/seller/SellerReviewsPage';
 import SellerReconciliationPage from '../pages/seller/SellerReconciliationPage';
+import SellerInventoryPage from '../pages/seller/SellerInventoryPage';
 import HomePage from '../pages/home/HomePage';
 import ProductDetailPage from '../pages/product/ProductDetailPage';
 import CategoryPage from '../pages/category/CategoryPage';
@@ -77,6 +78,7 @@ function AppRoutes() {
       <Route path="/seller/orders" element={<SellerOrdersPage />} />
       <Route path="/seller/reviews" element={<SellerReviewsPage />} />
       <Route path="/seller/reconciliation" element={<SellerReconciliationPage />} />
+      <Route path="/seller/inventory" element={<SellerInventoryPage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

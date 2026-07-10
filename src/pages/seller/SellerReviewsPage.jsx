@@ -282,23 +282,23 @@ function SellerReviewsPage() {
       </div>
 
       {totalPages > 0 && !loading && (
-        <div className="sr-pagination">
+        <div className="admin-pagination-container justify-center bg-light" style={{ marginTop: '20px' }}>
           <button
-            className="admin-pagination-btn"
+            className="admin-pagination-arrow-btn"
             disabled={currentPage === 0}
             onClick={() => setCurrentPage(currentPage - 1)}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: currentPage === 0 ? '#f1f5f9' : '#fff', color: currentPage === 0 ? '#94a3b8' : '#334155', cursor: currentPage === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
           >
             <span className="material-symbols-outlined">chevron_left</span>
           </button>
-          <span className="sr-pagination-info">
+          
+          <span style={{ fontSize: '14px', fontWeight: '500', color: '#1e293b' }}>
             Trang {currentPage + 1} / {totalPages}
           </span>
+          
           <button
-            className="admin-pagination-btn"
+            className="admin-pagination-arrow-btn"
             disabled={currentPage >= totalPages - 1}
             onClick={() => setCurrentPage(currentPage + 1)}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e2e8f0', background: currentPage >= totalPages - 1 ? '#f1f5f9' : '#fff', color: currentPage >= totalPages - 1 ? '#94a3b8' : '#334155', cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
           >
             <span className="material-symbols-outlined">chevron_right</span>
           </button>

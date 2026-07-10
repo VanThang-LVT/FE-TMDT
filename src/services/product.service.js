@@ -1,7 +1,11 @@
 import { API_BASE_URL } from '../utils/constants';
 
-export const getSellerProductsApi = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/seller/products`, {
+export const getSellerProductsApi = async (token, keyword = '', page = 0, size = 10) => {
+  let url = `${API_BASE_URL}/seller/products?page=${page}&size=${size}`;
+  if (keyword) {
+    url += `&keyword=${encodeURIComponent(keyword)}`;
+  }
+  const response = await fetch(url, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`
@@ -46,6 +50,26 @@ export const updateProductApi = async (productId, formData, token) => {
   }
 
   return response.json();
+};
+
+export const updateStockApi = async (productId, variantId, stockQuantity, token) => {
+  let url = `${API_BASE_URL}/seller/products/${productId}/stock?stockQuantity=${stockQuantity}`;
+  if (variantId) {
+    url += `&variantId=${variantId}`;
+  }
+
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi cập nhật số lượng tồn kho!');
+  }
+  return data;
 };
 
 export const getAdminProductsApi = async (keyword = '', status = '', page = 0, size = 10, token) => {

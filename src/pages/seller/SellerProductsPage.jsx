@@ -25,25 +25,47 @@ function SellerProductsPage() {
     formData, images, mainImageIndex, setMainImageIndex,
     categoryAttributes, attributeValues, variants, setVariants,
     variantAttributeIds, setVariantAttributeIds,
-    fetchData, handleInputChange, handleAttributeChange, handleVariantImageChange,
-    handleImageChange, handleRemoveImage, handleSubmit,
-    handleDeleteProduct, handleEditClick, handleCancelForm, buildCategoryOptions
+    handleInputChange, handleAttributeChange, handleVariantImageChange,
+    handleDeleteProduct, handleEditClick, handleCancelForm, buildCategoryOptions,
+    handleUpdateStock, handleImageChange, handleRemoveImage, handleSubmit,
+    fetchCategories, fetchProducts, totalPages, totalElements
   } = useSellerProducts(token);
+
+  const [stockModalData, setStockModalData] = useState(null);
+  const [newStock, setNewStock] = useState('');
 
   const [viewingAttributesProduct, setViewingAttributesProduct] = useState(null);
   const [viewingHistoryProduct, setViewingHistoryProduct] = useState(null);
   const [productToDelete, setProductToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 10;
+
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
   useEffect(() => {
     if (!authLoading) {
       if (!user) navigate('/login');
       else if (!isSeller()) navigate('/');
       else {
-        fetchData();
+        fetchCategories();
       }
     }
-  }, [user, authLoading, isSeller, navigate, fetchData]);
+  }, [user, authLoading, isSeller, navigate, fetchCategories]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (user && isSeller()) {
+      fetchProducts(debouncedSearchTerm, currentPage, itemsPerPage);
+    }
+  }, [debouncedSearchTerm, currentPage, fetchProducts, user, isSeller]);
 
   const renderStatusBadge = (status) => {
     switch (status) {
@@ -56,37 +78,43 @@ function SellerProductsPage() {
 
   const categoryOptions = buildCategoryOptions(categories);
 
-  const filteredProducts = products.filter(p =>
-    p.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (p.brand && p.brand.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [debouncedSearchTerm]);
+
+  const currentItems = products;
 
   const generalAttributes = categoryAttributes;
   const variantAttributes = categoryAttributes.filter(attr => variantAttributeIds.includes(attr.attrId));
 
-  if (authLoading || loading) {
-    return <div style={{ padding: '50px', textAlign: 'center', color: 'var(--text-primary)' }}>Đang tải dữ liệu...</div>;
+  if (authLoading) {
+    return <div style={{ padding: '50px', textAlign: 'center', color: 'var(--text-primary)' }}>Đang xác thực...</div>;
   }
 
   return (
     <SellerLayout>
-      <div className="seller-products-header">
-        <h2 className="seller-products-title">
-          {showAddForm ? (editingProductId ? 'Sửa sản phẩm' : 'Thêm Sản phẩm mới') : 'Quản lý Sản phẩm'}
-        </h2>
+      <div className="admin-page-header">
+        <div>
+          <h2 className="admin-page-title">
+            {showAddForm ? (editingProductId ? 'Sửa sản phẩm' : 'Thêm Sản phẩm mới') : 'Quản lý Sản phẩm'}
+          </h2>
+          <p className="admin-page-desc">Quản lý danh sách các sản phẩm và cập nhật thông tin.</p>
+        </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           {!showAddForm && (
-            <div className="admin-search" style={{ width: '280px', backgroundColor: 'white', margin: 0 }}>
-              <span className="material-symbols-outlined" style={{ color: '#94a3b8' }}>search</span>
+            <div style={{ position: 'relative' }}>
+              <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '20px' }}>search</span>
               <input
                 type="text"
+                className="admin-category-form-input"
                 placeholder="Tìm kiếm sản phẩm, thương hiệu..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: '280px', paddingLeft: '40px', margin: 0, height: '42px' }}
               />
             </div>
           )}
-          <button className="btn seller-products-add-btn" onClick={showAddForm ? handleCancelForm : () => setShowAddForm(true)}>
+          <button className="admin-category-header-btn" onClick={showAddForm ? handleCancelForm : () => setShowAddForm(true)}>
             {showAddForm ? 'Quay lại danh sách' : '+ Thêm Sản phẩm mới'}
           </button>
         </div>
@@ -244,7 +272,7 @@ function SellerProductsPage() {
                               />
                             </td>
                             <td>
-                              <input type="number" value={variant.stockQuantity} onChange={(e) => { const newV = [...variants]; newV[index].stockQuantity = e.target.value; setVariants(newV); }} className="seller-products-variants-input" placeholder="Kho" min="0" required />
+                              <input type="number" value={variant.stockQuantity} onChange={(e) => { const newV = [...variants]; newV[index].stockQuantity = e.target.value; setVariants(newV); }} className="seller-products-variants-input" placeholder="Kho" min="0" required disabled={!!editingProductId && variant.id && !variant.id.toString().includes('.')} />
                             </td>
                             <td className="text-center">
                               <button type="button" onClick={() => { const newV = [...variants]; newV.splice(index, 1); setVariants(newV); }} className="seller-products-variant-delete-btn" title="Xóa phân loại">
@@ -290,6 +318,7 @@ function SellerProductsPage() {
                     onChange={handleInputChange}
                     required
                     min="1"
+                    disabled={!!editingProductId}
                   />
                 </div>
               </>
@@ -339,7 +368,7 @@ function SellerProductsPage() {
         </div>
       ) : (
         <div className="table-container">
-          {filteredProducts.length === 0 ? (
+          {!products || products.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>Chưa có sản phẩm nào. Hãy đăng sản phẩm đầu tiên của bạn!</p>
           ) : (
             <table>
@@ -355,7 +384,7 @@ function SellerProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map(p => (
+                {currentItems?.map(p => (
                   <tr key={p.productId}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -404,6 +433,7 @@ function SellerProductsPage() {
                         >
                           <span className="material-symbols-outlined icon-18">edit</span> Sửa
                         </button>
+
                         <button
                           className="admin-action-btn"
                           title="Lịch sử kiểm duyệt"
@@ -426,6 +456,32 @@ function SellerProductsPage() {
                 ))}
               </tbody>
             </table>
+          )}
+          
+          {!showAddForm && totalPages > 1 && (
+            <div className="admin-pagination-container" style={{ justifyContent: 'center', backgroundColor: '#f8fafc', padding: '16px' }}>
+              <button
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(currentPage - 1)}
+                className="admin-pagination-arrow-btn"
+                style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white', cursor: currentPage === 0 ? 'not-allowed' : 'pointer', opacity: currentPage === 0 ? 0.5 : 1 }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_left</span>
+              </button>
+              
+              <span style={{ fontSize: '14px', fontWeight: '500', color: '#1e293b', margin: '0 16px' }}>
+                Trang {currentPage + 1} / {totalPages || 1}
+              </span>
+
+              <button
+                disabled={currentPage >= totalPages - 1}
+                onClick={() => setCurrentPage(currentPage + 1)}
+                className="admin-pagination-arrow-btn"
+                style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white', cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer', opacity: currentPage >= totalPages - 1 ? 0.5 : 1 }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_right</span>
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -581,6 +637,7 @@ function SellerProductsPage() {
         type="danger"
         confirmText="Xóa"
       />
+
     </SellerLayout>
   );
 }

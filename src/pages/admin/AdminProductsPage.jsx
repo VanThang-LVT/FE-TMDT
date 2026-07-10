@@ -214,37 +214,26 @@ function AdminProductsPage() {
 
         {/* Pagination Footer */}
         {!loading && totalPages > 1 && (
-          <div className="admin-pagination-container">
-            <span className="admin-pagination-info">
-              Hiển thị <strong>{page * pageSize + 1}</strong> - <strong>{Math.min((page + 1) * pageSize, totalElements)}</strong> trong số <strong>{totalElements}</strong> sản phẩm
+          <div className="admin-pagination-container justify-center bg-light">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage(page - 1)}
+              className="admin-pagination-arrow-btn"
+            >
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+            
+            <span style={{ fontSize: '14px', fontWeight: '500', color: '#1e293b' }}>
+              Trang {page + 1} / {totalPages || 1}
             </span>
-            <div className="admin-pagination-buttons">
-              <button
-                className="admin-pagination-btn"
-                disabled={page === 0}
-                onClick={() => setPage(page - 1)}
-              >
-                Trước
-              </button>
-              
-              {[...Array(totalPages).keys()].map((pNum) => (
-                <button
-                  key={pNum}
-                  className={`admin-pagination-btn ${pNum === page ? 'active' : ''}`}
-                  onClick={() => setPage(pNum)}
-                >
-                  {pNum + 1}
-                </button>
-              ))}
 
-              <button
-                className="admin-pagination-btn"
-                disabled={page === totalPages - 1}
-                onClick={() => setPage(page + 1)}
-              >
-                Sau
-              </button>
-            </div>
+            <button
+              disabled={page >= totalPages - 1}
+              onClick={() => setPage(page + 1)}
+              className="admin-pagination-arrow-btn"
+            >
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
         )}
       </div>

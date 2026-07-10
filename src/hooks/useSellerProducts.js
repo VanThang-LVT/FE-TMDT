@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { getSellerProductsApi, createProductApi, deleteProductApi, updateProductApi } from '../services/product.service';
+import { getSellerProductsApi, createProductApi, deleteProductApi, updateProductApi, updateStockApi } from '../services/product.service';
 import { getAllCategoriesApi, getCategoryAttributesApi } from '../services/category.service';
 import { API_BASE_URL } from '../utils/constants';
 
@@ -44,21 +44,32 @@ export const useSellerProducts = (token) => {
   const [attributeValues, setAttributeValues] = useState({});
   const [variants, setVariants] = useState([]);
   const [variantAttributeIds, setVariantAttributeIds] = useState([]);
+  
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const fetchData = useCallback(async () => {
+  const fetchProducts = useCallback(async (keyword = '', page = 0, size = 10) => {
     if (!token) return;
     try {
       setLoading(true);
-      const [productsData, categoriesData] = await Promise.all([
-        getSellerProductsApi(token),
-        getAllCategoriesApi()
-      ]);
-      setProducts(productsData);
-      setCategories(categoriesData);
+      const data = await getSellerProductsApi(token, keyword, page, size);
+      setProducts(data.content || (Array.isArray(data) ? data : []));
+      setTotalPages(data.totalPages || 1);
+      setTotalElements(data.totalElements !== undefined ? data.totalElements : (Array.isArray(data) ? data.length : 0));
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }, [token]);
+
+  const fetchCategories = useCallback(async () => {
+    if (!token) return;
+    try {
+      const categoriesData = await getAllCategoriesApi();
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error(err);
     }
   }, [token]);
 
@@ -180,7 +191,7 @@ export const useSellerProducts = (token) => {
         variants: variants.map(v => {
           const filteredAttrs = {};
           if (v.attributes) {
-            variantAttributeIds.forEach(attrId => {
+            Object.keys(v.attributes).forEach(attrId => {
               if (v.attributes[attrId] !== undefined) {
                 filteredAttrs[attrId] = v.attributes[attrId];
               }
@@ -216,6 +227,7 @@ export const useSellerProducts = (token) => {
 
       setShowAddForm(false);
       setEditingProductId(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Reset form
       setFormData({
@@ -230,6 +242,7 @@ export const useSellerProducts = (token) => {
       setEditingProductId(null);
     } catch (err) {
       setError(err.message);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setIsSubmitting(false);
     }
@@ -248,6 +261,37 @@ export const useSellerProducts = (token) => {
     }
   }, [token]);
 
+
+  const handleUpdateStock = useCallback(async (productId, variantId, newStockQuantity) => {
+    try {
+      await updateStockApi(productId, variantId, newStockQuantity, token);
+      
+      setProducts(prev => prev.map(p => {
+        if (p.productId === productId) {
+          const updatedProduct = { ...p };
+          if (variantId) {
+            if (updatedProduct.variants) {
+              updatedProduct.variants = updatedProduct.variants.map(v => 
+                v.variantId === variantId ? { ...v, stockQuantity: newStockQuantity } : v
+              );
+              updatedProduct.stockQuantity = updatedProduct.variants.reduce((sum, v) => sum + parseInt(v.stockQuantity), 0);
+            }
+          } else {
+            updatedProduct.stockQuantity = newStockQuantity;
+          }
+          return updatedProduct;
+        }
+        return p;
+      }));
+      setSuccess('Cập nhật tồn kho thành công!');
+      setTimeout(() => setSuccess(''), 3000);
+      return true;
+    } catch (err) {
+      setError(err.message);
+      setTimeout(() => setError(''), 3000);
+      return false;
+    }
+  }, [token]);
 
 
   const handleEditClick = useCallback((product) => {
@@ -363,8 +407,9 @@ export const useSellerProducts = (token) => {
     formData, images, mainImageIndex, setMainImageIndex,
     categoryAttributes, attributeValues, variants, setVariants,
     variantAttributeIds, setVariantAttributeIds,
-    fetchData, handleInputChange, handleAttributeChange, handleVariantImageChange,
-    handleImageChange, handleRemoveImage, handleSubmit,
-    handleDeleteProduct, handleEditClick, handleCancelForm, buildCategoryOptions
+    fetchCategories, handleInputChange, handleAttributeChange, handleVariantImageChange,
+    handleDeleteProduct, handleEditClick, handleCancelForm, buildCategoryOptions,
+    handleUpdateStock, fetchProducts, totalPages, totalElements,
+    handleSubmit, handleImageChange, handleRemoveImage
   };
 };

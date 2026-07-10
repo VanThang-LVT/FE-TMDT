@@ -174,25 +174,25 @@ function AdminEmailLogPage() {
               </table>
             </div>
 
-            <div className="pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginTop: '20px', padding: '15px 0' }}>
+            <div className="admin-pagination-container justify-center bg-light" style={{ marginTop: '20px' }}>
               <button 
-                className="admin-action-btn approve" 
+                className="admin-pagination-arrow-btn" 
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
-                style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', opacity: page === 0 ? 0.5 : 1, cursor: page === 0 ? 'not-allowed' : 'pointer', width: 'auto' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_left</span>
+                <span className="material-symbols-outlined">chevron_left</span>
               </button>
-              <span style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
+              
+              <span style={{ fontSize: '14px', fontWeight: '500', color: '#1e293b' }}>
                 Trang {page + 1} / {Math.max(1, totalPages)}
               </span>
+              
               <button 
-                className="admin-action-btn approve" 
+                className="admin-pagination-arrow-btn" 
                 onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', opacity: page >= totalPages - 1 ? 0.5 : 1, cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer', width: 'auto' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_right</span>
+                <span className="material-symbols-outlined">chevron_right</span>
               </button>
             </div>
           </>
