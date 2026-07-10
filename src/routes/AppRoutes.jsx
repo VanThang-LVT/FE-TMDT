@@ -30,6 +30,7 @@ import CategoryPage from '../pages/category/CategoryPage';
 import CartPage from '../pages/cart/CartPage';
 import CheckoutPage from '../pages/checkout/CheckoutPage';
 import PaymentReturnPage from '../pages/checkout/PaymentReturnPage';
+import PublicShopPage from '../pages/shop/PublicShopPage';
 
 function AppRoutes() {
   return (
@@ -37,6 +38,7 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/product/:productId" element={<ProductDetailPage />} />
       <Route path="/category/:categoryId" element={<CategoryPage />} />
+      <Route path="/shop/:shopId" element={<PublicShopPage />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/payment-return" element={<PaymentReturnPage />} />

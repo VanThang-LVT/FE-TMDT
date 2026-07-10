@@ -107,12 +107,13 @@ export const deleteProductApi = async (productId, token) => {
   return data;
 };
 
-export const getPublicProductsApi = async (keyword = '', prompt = '', categoryId = '') => {
+export const getPublicProductsApi = async (keyword = '', prompt = '', categoryId = '', shopId = '') => {
   let url = `${API_BASE_URL}/products`;
   const params = new URLSearchParams();
   if (keyword) params.append('keyword', keyword);
   if (prompt) params.append('prompt', prompt);
   if (categoryId) params.append('categoryId', categoryId);
+  if (shopId) params.append('shopId', shopId);
   
   if (params.toString()) {
     url += `?${params.toString()}`;

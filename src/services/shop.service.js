@@ -157,3 +157,12 @@ export const updateShopStatusByAdminApi = async (token, shopId, status) => {
   }
   return data;
 };
+
+export const getPublicShopApi = async (shopId) => {
+  const response = await fetch(`${API_BASE_URL}/shops/public/${shopId}`);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Lỗi lấy thông tin gian hàng!');
+  }
+  return data.data;
+};

@@ -371,7 +371,7 @@ function ProductDetailPage() {
                 <div className="shop-name">{product.shopName || `Shop #${product.shopId}`}</div>
                 <div className="shop-status">Online 5 phút trước</div>
               </div>
-              <button className="btn-view-shop">Xem Shop</button>
+              <button className="btn-view-shop" onClick={() => navigate(`/shop/${product.shopId}`)}>Xem Shop</button>
             </div>
           </div>
         </div>
