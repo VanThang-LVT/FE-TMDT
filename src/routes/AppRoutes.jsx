@@ -19,6 +19,7 @@ import ProfilePage from '../pages/customer/ProfilePage';
 import ChangePasswordPage from '../pages/customer/ChangePasswordPage';
 import OrdersPage from '../pages/customer/OrdersPage';
 import ShopRegistrationPage from '../pages/customer/ShopRegistrationPage';
+import CustomerVouchersPage from '../pages/customer/CustomerVouchersPage';
 import SellerPage from '../pages/seller/SellerPage';
 import SellerProductsPage from '../pages/seller/SellerProductsPage';
 import SellerOrdersPage from '../pages/seller/SellerOrdersPage';
@@ -52,9 +53,7 @@ function AppRoutes() {
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/change-password" element={<ChangePasswordPage />} />
       <Route path="/orders" element={<OrdersPage />} />
-      <Route path="/orders/history" element={<OrdersPage />} />
-
-      {/* Protect Shop Registration */}
+      <Route path="/vouchers" element={<CustomerVouchersPage />} />
       <Route path="/register-shop" element={<ShopRegistrationPage />} />
 
       {/* Admin Routes */}

@@ -418,6 +418,10 @@ function SellerProductsPage() {
                             </span>
                           )}
                         </div>
+                      ) : p.specifications ? (
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {p.specifications}
+                        </div>
                       ) : (
                         <span style={{ fontSize: '12px', fontStyle: 'italic', color: 'var(--text-muted)' }}>Chưa có thông số</span>
                       )}

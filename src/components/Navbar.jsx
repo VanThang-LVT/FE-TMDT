@@ -327,9 +327,9 @@ function Navbar({ brandName = 'EoViTi' }) {
                         <span className="material-symbols-outlined">shopping_cart</span>
                         Giỏ hàng
                       </Link>
-                      <Link to="/orders/history" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
-                        <span className="material-symbols-outlined">history</span>
-                        Lịch sử đơn hàng
+                      <Link to="/vouchers" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                        <span className="material-symbols-outlined">local_offer</span>
+                        Voucher
                       </Link>
                       <Link to="/orders" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
                         <span className="material-symbols-outlined">receipt_long</span>

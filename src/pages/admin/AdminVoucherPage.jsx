@@ -9,6 +9,7 @@ import {
 } from '../../services/voucher.service';
 import AdminLayout from '../../layouts/AdminLayout';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../../components/modals/ConfirmModal';
 
 const EMPTY_FORM = {
   voucherCode: '',
@@ -56,6 +57,7 @@ function AdminVoucherPage() {
   const [editingVoucher, setEditingVoucher] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, id: null });
 
   const fetchVouchers = useCallback(async (page = 0, keyword = '') => {
     try {
@@ -167,14 +169,20 @@ function AdminVoucherPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa voucher này?')) return;
+  const handleDeleteClick = (id) => {
+    setConfirmDelete({ isOpen: true, id });
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDelete.id) return;
     try {
-      await deleteVoucherApi(id, token);
+      await deleteVoucherApi(confirmDelete.id, token);
       toast.success('Đã xóa voucher');
       fetchVouchers(currentPage);
     } catch (err) {
       toast.error(err.message || 'Lỗi xóa voucher');
+    } finally {
+      setConfirmDelete({ isOpen: false, id: null });
     }
   };
 
@@ -323,7 +331,7 @@ function AdminVoucherPage() {
                           </button>
                           <button
                             className="admin-action-btn reject"
-                            onClick={() => handleDelete(v.voucherId)}
+                            onClick={() => handleDeleteClick(v.voucherId)}
                             title="Xóa"
                           >
                             <span className="material-symbols-outlined">delete</span>
@@ -539,6 +547,16 @@ function AdminVoucherPage() {
             </div>
           </div>
         )}
+
+        <ConfirmModal
+          isOpen={confirmDelete.isOpen}
+          title="Xác nhận xóa"
+          message="Bạn có chắc chắn muốn xóa voucher này?"
+          onConfirm={executeDelete}
+          onCancel={() => setConfirmDelete({ isOpen: false, id: null })}
+          confirmText="Xóa"
+          type="danger"
+        />
       </div>
     </AdminLayout>
   );
