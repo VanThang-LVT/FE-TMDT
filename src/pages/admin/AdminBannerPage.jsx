@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getAdminBannersApi, createBannerApi, updateBannerApi, deleteBannerApi, toggleBannerStatusApi } from '../../services/banner.service';
 import { API_BASE_URL } from '../../utils/constants';
 import AdminLayout from '../../layouts/AdminLayout';
+import toast from 'react-hot-toast';
 
 function AdminBannerPage() {
   const { user, token, isAdmin, loading: authLoading } = useAuth();
@@ -26,7 +27,7 @@ function AdminBannerPage() {
       const data = await getAdminBannersApi(token);
       setBanners(data);
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message || 'Lỗi tải danh sách banner');
     } finally {
       setLoading(false);
     }
@@ -73,7 +74,7 @@ function AdminBannerPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!editingBanner && !imageFile) {
-      return alert("Vui lòng chọn ảnh cho banner mới");
+      return toast.error("Vui lòng chọn ảnh cho banner mới");
     }
 
     setSubmitting(true);
@@ -88,15 +89,15 @@ function AdminBannerPage() {
 
       if (editingBanner) {
         await updateBannerApi(editingBanner.bannerId, data, token);
-        alert("Cập nhật thành công!");
+        toast.success("Cập nhật thành công!");
       } else {
         await createBannerApi(data, token);
-        alert("Thêm mới thành công!");
+        toast.success("Thêm mới thành công!");
       }
       setIsModalOpen(false);
       fetchBanners();
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message || 'Lỗi khi lưu banner');
     } finally {
       setSubmitting(false);
     }
@@ -107,7 +108,7 @@ function AdminBannerPage() {
       await toggleBannerStatusApi(id, token);
       fetchBanners();
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message || 'Lỗi cập nhật trạng thái');
     }
   };
 
@@ -117,7 +118,7 @@ function AdminBannerPage() {
       await deleteBannerApi(id, token);
       fetchBanners();
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message || 'Lỗi xóa banner');
     }
   };
 

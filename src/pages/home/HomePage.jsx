@@ -189,6 +189,7 @@ function HomePage() {
                         <span className="material-symbols-outlined icon-small">storefront</span>
                         {product.shopName || `Shop #${product.shopId}`}
                       </span>
+                      <span className="product-sales font-number">Đã bán {product.salesCount || 0}</span>
                     </div>
                   </div>
                 </div>
